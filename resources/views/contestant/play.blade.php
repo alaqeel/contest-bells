@@ -229,15 +229,15 @@
             });
 
             // Connection state indicator
-            window.Echo.connector.pusher.connection.bind('connected', () => {
+            window.Echo.connector.ably.connection.on('connected', () => {
                 document.getElementById('connection-dot').className = 'w-2 h-2 rounded-full bg-green-400';
                 document.getElementById('connection-label').textContent = TRANS.connected;
             });
-            window.Echo.connector.pusher.connection.bind('disconnected', () => {
+            window.Echo.connector.ably.connection.on('disconnected', () => {
                 document.getElementById('connection-dot').className = 'w-2 h-2 rounded-full bg-red-400';
                 document.getElementById('connection-label').textContent = TRANS.disconnected;
             });
-            window.Echo.connector.pusher.connection.bind('connecting', () => {
+            window.Echo.connector.ably.connection.on('connecting', () => {
                 document.getElementById('connection-dot').className =
                     'w-2 h-2 rounded-full bg-yellow-400 animate-pulse';
                 document.getElementById('connection-label').textContent = TRANS.reconnecting;
