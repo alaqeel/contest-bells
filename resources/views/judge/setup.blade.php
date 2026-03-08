@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'New Competition')
+@section('title', __('competition.setup_title'))
 
 @section('content')
     <div class="min-h-full flex flex-col items-center justify-center px-4 py-12">
@@ -9,8 +9,8 @@
             {{-- Logo / Brand --}}
             <div class="text-center mb-10">
                 <div class="text-6xl mb-3">🔔</div>
-                <h1 class="text-4xl font-black tracking-tight text-white">Contest Bells</h1>
-                <p class="text-gray-400 mt-2 text-sm">Real-time quiz buzzer system</p>
+            <h1 class="text-4xl font-black tracking-tight text-white">{{ __('common.app_name') }}</h1>
+                    <p class="text-gray-400 mt-2 text-sm">{{ __('common.tagline') }}</p>
             </div>
 
             {{-- Validation errors --}}
@@ -30,15 +30,15 @@
 
                 {{-- Competition title --}}
                 <div>
-                    <label class="block text-sm font-semibold text-gray-300 mb-1">Competition Title</label>
+                    <label class="block text-sm font-semibold text-gray-300 mb-1">{{ __('competition.competition_title') }}</label>
                     <input type="text" name="title" value="{{ old('title', 'Quiz Competition') }}"
-                        placeholder="e.g. Science Quiz Round 1"
+                        placeholder="{{ __('competition.title_placeholder') }}"
                         class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500">
                 </div>
 
                 {{-- Contestant count selector --}}
                 <div>
-                    <label class="block text-sm font-semibold text-gray-300 mb-2">Number of Contestants</label>
+                    <label class="block text-sm font-semibold text-gray-300 mb-2">{{ __('competition.contestant_count') }}</label>
                     <div class="flex gap-3" id="count-buttons">
                         @foreach ([2, 3, 4] as $n)
                             <button type="button" data-count="{{ $n }}" onclick="setCount({{ $n }})"
@@ -100,7 +100,7 @@
             <div class="flex items-center gap-3">
                 <span class="w-8 h-8 rounded-full bg-indigo-700 text-white flex items-center justify-center font-bold text-sm">${i+1}</span>
                 <input type="text" name="names[]" value="${val}"
-                    placeholder="Contestant ${i+1} name"
+                    placeholder="${TRANS.contestant_placeholder.replace(':n', i+1)}"
                     required maxlength="50"
                     class="flex-1 bg-gray-800 border border-gray-700 rounded-xl px-4 py-3
                            text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500">

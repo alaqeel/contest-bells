@@ -1,0 +1,23 @@
+<?php
+return [
+    'dashboard_title'        => 'لوحة تحكم الحكم',
+    'share_with_contestants' => 'مشاركة مع المتسابقين',
+    'current_round'          => 'الجولة الحالية',
+    'no_round'               => 'لا توجد جولة',
+    'round_number'           => 'الجولة :number',
+    'first_buzzer'           => 'أول ضاغط:',
+    'waiting_buzz'           => 'في انتظار الضغط...',
+    'no_round_started'       => 'لم تبدأ جولة بعد.',
+    'start_round'            => '▶ بدء الجولة',
+    'reset_buzzers'          => '↺ إعادة الأجراس',
+    'correct'                => '✓ صحيح',
+    'wrong'                  => '✗ خطأ',
+    'end_competition'        => 'إنهاء المسابقة',
+    'end_confirm'            => 'هل تريد إنهاء المسابقة؟ لا يمكن التراجع عن هذا الإجراء.',
+    'event_log'              => 'سجل الأحداث',
+    'ready'                  => '— جاهز —',
+    'contestants'            => 'المتسابقون',
+    'joined'                 => 'انضم',
+    'waiting'                => 'في الانتظار',
+    'scoreboard'             => 'لوحة النتائج',
+];

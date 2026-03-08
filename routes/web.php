@@ -13,6 +13,15 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 
+// Locale switcher
+Route::get('/locale/{locale}', function (string $locale) {
+    $supported = ['ar', 'en'];
+    if (in_array($locale, $supported, true)) {
+        session(['locale' => $locale]);
+    }
+    return redirect()->back()->fallback(route('home'));
+})->name('locale.switch');
+
 // Setup page (home)
 Route::get('/', [CompetitionController::class, 'create'])->name('home');
 Route::post('/competitions', [CompetitionController::class, 'store'])->name('competition.store');

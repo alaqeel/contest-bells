@@ -1,0 +1,23 @@
+<?php
+return [
+    'dashboard_title'        => 'Judge Dashboard',
+    'share_with_contestants' => 'Share with contestants',
+    'current_round'          => 'Current Round',
+    'no_round'               => 'No round',
+    'round_number'           => 'Round :number',
+    'first_buzzer'           => 'First buzzer:',
+    'waiting_buzz'           => 'Waiting for a buzz...',
+    'no_round_started'       => 'No round started yet.',
+    'start_round'            => '▶ Start Round',
+    'reset_buzzers'          => '↺ Reset Buzzers',
+    'correct'                => '✓ Correct',
+    'wrong'                  => '✗ Wrong',
+    'end_competition'        => 'End Competition',
+    'end_confirm'            => 'End the competition? This cannot be undone.',
+    'event_log'              => 'Event Log',
+    'ready'                  => '— Ready —',
+    'contestants'            => 'Contestants',
+    'joined'                 => 'joined',
+    'waiting'                => 'waiting',
+    'scoreboard'             => 'Scoreboard',
+];
