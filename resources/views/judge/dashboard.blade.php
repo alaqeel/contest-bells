@@ -346,10 +346,10 @@
         }
 
         // ── Polling ──────────────────────────────────────────────────────────────────
-        let lastRoundId   = currentRound?.id ?? null;
+        let lastRoundId = currentRound?.id ?? null;
         let lastRoundStatus = currentRound?.status ?? null;
         let lastFirstBuzzer = null;
-        let pollInterval  = null;
+        let pollInterval = null;
 
         function applyState(data) {
             // Competition ended → redirect
@@ -380,7 +380,10 @@
             // Round changed (new round started)
             if (round && round.id !== lastRoundId) {
                 lastRoundId = round.id;
-                currentRound = { id: round.id, status: round.status };
+                currentRound = {
+                    id: round.id,
+                    status: round.status
+                };
                 document.getElementById('round-badge').textContent =
                     TRANS.round_number.replace(':number', round.number);
                 document.getElementById('first-buzzer-area').classList.add('hidden');
@@ -425,9 +428,14 @@
 
         async function pollState() {
             try {
-                const res = await fetch(BASE_URL + '/state', { headers: { 'Accept': 'application/json' } });
+                const res = await fetch(BASE_URL + '/state', {
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
                 if (res.ok) applyState(await res.json());
-            } catch (e) { /* network blip — ignore */ }
+            } catch (e) {
+                /* network blip — ignore */ }
         }
 
         function startPolling(intervalMs) {

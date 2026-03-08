@@ -56,13 +56,18 @@
 
         async function pollJoinState() {
             try {
-                const res = await fetch('/join/' + ROOM_CODE + '/state', { headers: { 'Accept': 'application/json' } });
+                const res = await fetch('/join/' + ROOM_CODE + '/state', {
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
                 if (!res.ok) return;
                 const data = await res.json();
                 if (data.contestants) {
                     data.contestants.forEach(c => {
                         if (c.is_claimed) {
-                            const btn = document.querySelector('button[name="contestant_id"][value="' + c.id + '"]');
+                            const btn = document.querySelector('button[name="contestant_id"][value="' + c.id +
+                                '"]');
                             if (btn && !btn.disabled) {
                                 btn.disabled = true;
                                 btn.className = btn.className
@@ -76,7 +81,8 @@
                         }
                     });
                 }
-            } catch (e) { /* ignore */ }
+            } catch (e) {
+                /* ignore */ }
         }
 
         setInterval(pollJoinState, 2000);

@@ -171,10 +171,10 @@
         }
 
         // ── Polling ──────────────────────────────────────────────────────────────
-        let lastRoundId     = null;
+        let lastRoundId = null;
         let lastRoundStatus = null;
         let lastFirstBuzzer = null;
-        let pollInterval    = null;
+        let pollInterval = null;
 
         function applyState(data) {
             // Score
@@ -240,9 +240,14 @@
 
         async function pollState() {
             try {
-                const res = await fetch(BASE_URL + '/state', { headers: { 'Accept': 'application/json' } });
+                const res = await fetch(BASE_URL + '/state', {
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
                 if (res.ok) applyState(await res.json());
-            } catch (e) { /* ignore network blip */ }
+            } catch (e) {
+                /* ignore network blip */ }
         }
 
         pollInterval = setInterval(pollState, 800);

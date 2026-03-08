@@ -48,7 +48,11 @@
 
         async function pollDisplayState() {
             try {
-                const res = await fetch('/display/' + ROOM_CODE + '/state', { headers: { 'Accept': 'application/json' } });
+                const res = await fetch('/display/' + ROOM_CODE + '/state', {
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
                 if (!res.ok) return;
                 const data = await res.json();
 
@@ -76,7 +80,8 @@
                         if (el) el.textContent = c.score;
                     });
                 }
-            } catch (e) { /* ignore */ }
+            } catch (e) {
+                /* ignore */ }
         }
 
         setInterval(pollDisplayState, 1000);
