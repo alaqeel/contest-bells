@@ -26,4 +26,5 @@ return [
     'buzzers_reset'        => 'Buzzers reset — buzz now!',
     'reconnecting'         => 'Reconnecting...',
     'was_first'            => ':name was first!',
+    'too_late'             => 'too late',
 ];

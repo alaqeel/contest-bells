@@ -206,6 +206,15 @@
             'round_number' => __('judge.round_number'),
             'waiting_buzz' => __('judge.waiting_buzz'),
             'joined' => __('judge.joined'),
+            'correct_start_next' => __('judge.correct_start_next'),
+            'log_round_started' => __('judge.log_round_started'),
+            'log_buzzers_reset' => __('judge.log_buzzers_reset'),
+            'log_correct_marked' => __('judge.log_correct_marked'),
+            'log_wrong_answer' => __('judge.log_wrong_answer'),
+            'log_timer_expired' => __('judge.log_timer_expired'),
+            'log_contestant_joined' => __('judge.log_contestant_joined'),
+            'log_buzzed_first' => __('judge.log_buzzed_first'),
+            'log_round_completed' => __('judge.log_round_completed'),
         ]) !!};
         let currentRound = @json(
             $competition->currentRound
@@ -256,7 +265,7 @@
                     clearInterval(timerInterval);
                     secEl.textContent = '0';
                     timerEl.classList.add('text-red-400');
-                    log('⏰ Answer timer expired');
+                    log(TRANS.log_timer_expired);
                 } else {
                     secEl.textContent = rem;
                 }
@@ -286,7 +295,7 @@
                 document.getElementById('answer-timer').classList.add('hidden');
                 clearInterval(timerInterval);
                 setButtonState('active');
-                log('▶ Round ' + data.round_number + ' started');
+                log(TRANS.log_round_started.replace(':number', data.round_number));
             }
         }
 
@@ -305,7 +314,7 @@
                 document.getElementById('answer-timer').classList.add('hidden');
                 clearInterval(timerInterval);
                 setButtonState('active');
-                log('↺ Buzzers reset');
+                log(TRANS.log_buzzers_reset);
             }
         }
 
@@ -329,11 +338,11 @@
                     document.getElementById('first-buzzer-area').classList.add('hidden');
                     document.getElementById('waiting-buzz').classList.remove('hidden');
                     document.getElementById('waiting-buzz').querySelector('p').textContent =
-                        '✅ Correct! Start next round.';
+                        TRANS.correct_start_next;
                     setButtonState('completed');
-                    log('✓ Correct answer marked');
+                    log(TRANS.log_correct_marked);
                 } else {
-                    log('✗ Wrong answer — buzzers re-opened for others');
+                    log(TRANS.log_wrong_answer);
                     setButtonState('active');
                 }
             }
@@ -366,7 +375,7 @@
                     if (dot && c.claimed && dot.classList.contains('bg-gray-600')) {
                         dot.classList.replace('bg-gray-600', 'bg-green-400');
                         if (lbl) lbl.textContent = TRANS.joined;
-                        log('👤 ' + c.name + ' joined');
+                        log(TRANS.log_contestant_joined.replace(':name', c.name));
                     }
                 });
             }
@@ -391,7 +400,7 @@
                 document.getElementById('answer-timer').classList.add('hidden');
                 clearInterval(timerInterval);
                 lastFirstBuzzer = null;
-                log('▶ Round ' + round.number + ' started');
+                log(TRANS.log_round_started.replace(':number', round.number));
             }
 
             // First buzzer appeared
@@ -401,7 +410,7 @@
                 document.getElementById('first-buzzer-area').classList.remove('hidden');
                 document.getElementById('waiting-buzz').classList.add('hidden');
                 if (round.answer_deadline_at) startAnswerTimer(round.answer_deadline_at);
-                log('🔔 ' + round.first_buzzer + ' buzzed first!');
+                log(TRANS.log_buzzed_first.replace(':name', round.first_buzzer));
             }
 
             // First buzzer cleared (reset)
@@ -411,7 +420,7 @@
                 document.getElementById('waiting-buzz').classList.remove('hidden');
                 document.getElementById('answer-timer').classList.add('hidden');
                 clearInterval(timerInterval);
-                log('↺ Buzzers reset');
+                log(TRANS.log_buzzers_reset);
             }
 
             if (roundStatus !== lastRoundStatus) {
@@ -421,7 +430,7 @@
                 if (roundStatus === 'completed') {
                     clearInterval(timerInterval);
                     document.getElementById('answer-timer').classList.add('hidden');
-                    log('✓ Round completed');
+                    log(TRANS.log_round_completed);
                 }
             }
         }

@@ -89,6 +89,7 @@
             'locked_out_msg' => __('contestant.locked_out_msg'),
             'locked_out_short' => __('contestant.locked_out_short'),
             'not_accepted' => __('contestant.not_accepted'),
+            'too_late' => __('contestant.too_late'),
             'competition_ended' => __('contestant.competition_ended_excl'),
             'round_over' => __('contestant.round_over'),
             'correct_answer' => __('contestant.correct_answer'),
@@ -163,7 +164,7 @@
                 if (data.reason === 'contestant_locked_out') {
                     setStatus(TRANS.locked_out_short, 'text-orange-400');
                 } else {
-                    setStatus(TRANS.not_accepted + ' ' + (data.reason || 'too late'), 'text-gray-500');
+                    setStatus(TRANS.not_accepted + ' ' + (data.reason || TRANS.too_late), 'text-gray-500');
                     // Re-enable if round is still active (another contestant won)
                 }
             }

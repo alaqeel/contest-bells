@@ -26,4 +26,5 @@ return [
     'buzzers_reset'        => 'تم إعادة الأجراس — اضغط الآن!',
     'reconnecting'         => 'جارٍ إعادة الاتصال...',
     'was_first'            => 'سبقك :name!',
+    'too_late'             => 'فات الوقت',
 ];
