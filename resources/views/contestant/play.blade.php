@@ -81,7 +81,7 @@
         const ROOM_CODE = document.querySelector('meta[name="room-code"]').content;
         const CONTESTANT_ID = parseInt(document.querySelector('meta[name="contestant-id"]').content);
         const BASE_URL = '/play/' + ROOM_CODE + '/' + CONTESTANT_ID;
-        const TRANS = @json([
+        const TRANS = {!! json_encode([
             'buzz_active' => __('contestant.buzz_active'),
             'you_buzzed_first' => __('contestant.you_buzzed_first'),
             'was_first' => __('contestant.was_first'),
@@ -96,7 +96,7 @@
             'connected' => __('contestant.connected'),
             'disconnected' => __('contestant.disconnected'),
             'reconnecting' => __('contestant.reconnecting'),
-        ]);
+        ]) !!};
 
         let buzzerEnabled = {{ $competition->currentRound?->status->value === 'active' ? 'true' : 'false' }};
         let lockoutInterval = null;

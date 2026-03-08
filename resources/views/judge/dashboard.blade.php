@@ -200,13 +200,13 @@
     <script>
         const ROOM_CODE = document.querySelector('meta[name="room-code"]').content;
         const BASE_URL = '/judge/' + ROOM_CODE;
-        const TRANS = @json([
+        const TRANS = {!! json_encode([
             'copy' => __('common.copy'),
             'copied' => __('common.copied'),
             'round_number' => __('judge.round_number'),
             'waiting_buzz' => __('judge.waiting_buzz'),
             'joined' => __('judge.joined'),
-        ]);
+        ]) !!};
         let currentRound = @json(
             $competition->currentRound
                 ? ['id' => $competition->currentRound->id, 'status' => $competition->currentRound->status->value]
