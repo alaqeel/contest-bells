@@ -6,10 +6,8 @@ window.Ably = Ably;
 
 window.Echo = new Echo({
     broadcaster: 'ably',
-    key: import.meta.env.VITE_ABLY_KEY,
+    // No 'key' here — we use token auth via authEndpoint.
+    // Passing key (even undefined) causes Ably SDK to crash on key.split(':')
     authEndpoint: '/ably-auth',
-    authMethod: 'POST',
-    authHeaders: {
-        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ?? '',
-    },
+    authMethod: 'GET',
 });

@@ -8,8 +8,8 @@ Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
 });
 
 // Public competition channel — all contestants and judge subscribe here.
-// Access is public because contestants don't have full auth sessions.
-// The room_code is the shared secret for discovery.
-Broadcast::channel('competition.{roomCode}', function () {
+// @ably/laravel-echo adds a 'public:' prefix for public channel subscriptions,
+// so the channel name must match on both server and client.
+Broadcast::channel('public:competition.{roomCode}', function () {
     return true; // public channel — all subscribers allowed
 });

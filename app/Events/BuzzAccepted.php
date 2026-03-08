@@ -35,7 +35,7 @@ class BuzzAccepted implements ShouldBroadcastNow
     public function broadcastOn(): array
     {
         return [
-            new Channel('competition.' . $this->competition->room_code),
+            new Channel('public:competition.' . $this->competition->room_code),
         ];
     }
 }
