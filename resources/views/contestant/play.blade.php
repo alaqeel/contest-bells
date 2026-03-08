@@ -14,7 +14,8 @@
             <div class="flex items-center justify-between mb-1">
                 <h1 class="text-xl font-black truncate">{{ $contestant->display_name }}</h1>
                 <div class="flex items-center gap-2">
-                    <span class="w-2 h-2 rounded-full bg-green-400" id="connection-dot" title="{{ __('contestant.connected') }}"></span>
+                    <span class="w-2 h-2 rounded-full bg-green-400" id="connection-dot"
+                        title="{{ __('contestant.connected') }}"></span>
                     <span class="text-xs text-gray-400" id="connection-label">{{ __('contestant.connected') }}</span>
                 </div>
             </div>
@@ -63,7 +64,8 @@
 
         {{-- Lockout countdown --}}
         <div id="lockout-area" class="text-center hidden">
-            <p class="text-orange-400 font-bold">{{ __('contestant.locked_out', ['seconds' => '']) }}<span id="lockout-countdown">10</span>s</p>
+            <p class="text-orange-400 font-bold">{{ __('contestant.locked_out', ['seconds' => '']) }}<span
+                    id="lockout-countdown">10</span>s</p>
         </div>
 
         {{-- Bottom spacer --}}
@@ -80,20 +82,20 @@
         const CONTESTANT_ID = parseInt(document.querySelector('meta[name="contestant-id"]').content);
         const BASE_URL = '/play/' + ROOM_CODE + '/' + CONTESTANT_ID;
         const TRANS = @json([
-            'buzz_active'           => __('contestant.buzz_active'),
-            'you_buzzed_first'      => __('contestant.you_buzzed_first'),
-            'was_first'             => __('contestant.was_first'),
-            'waiting_for_round'     => __('contestant.waiting_for_round'),
-            'locked_out_msg'        => __('contestant.locked_out_msg'),
-            'locked_out_short'      => __('contestant.locked_out_short'),
-            'not_accepted'          => __('contestant.not_accepted'),
-            'competition_ended'     => __('contestant.competition_ended_excl'),
-            'round_over'            => __('contestant.round_over'),
-            'correct_answer'        => __('contestant.correct_answer'),
-            'buzzers_reset'         => __('contestant.buzzers_reset'),
-            'connected'             => __('contestant.connected'),
-            'disconnected'          => __('contestant.disconnected'),
-            'reconnecting'          => __('contestant.reconnecting'),
+            'buzz_active' => __('contestant.buzz_active'),
+            'you_buzzed_first' => __('contestant.you_buzzed_first'),
+            'was_first' => __('contestant.was_first'),
+            'waiting_for_round' => __('contestant.waiting_for_round'),
+            'locked_out_msg' => __('contestant.locked_out_msg'),
+            'locked_out_short' => __('contestant.locked_out_short'),
+            'not_accepted' => __('contestant.not_accepted'),
+            'competition_ended' => __('contestant.competition_ended_excl'),
+            'round_over' => __('contestant.round_over'),
+            'correct_answer' => __('contestant.correct_answer'),
+            'buzzers_reset' => __('contestant.buzzers_reset'),
+            'connected' => __('contestant.connected'),
+            'disconnected' => __('contestant.disconnected'),
+            'reconnecting' => __('contestant.reconnecting'),
         ]);
 
         let buzzerEnabled = {{ $competition->currentRound?->status->value === 'active' ? 'true' : 'false' }};

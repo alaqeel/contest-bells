@@ -16,7 +16,8 @@
                 <div class="bg-yellow-900/40 border border-yellow-600/40 rounded-2xl p-6 text-center mb-6">
                     <p class="text-xs text-yellow-500 uppercase tracking-widest mb-1">{{ __('scoreboard.winner') }}</p>
                     <p class="text-4xl font-black text-yellow-300">{{ $contestants->first()->display_name }}</p>
-                    <p class="text-2xl font-bold text-yellow-500 mt-1">{{ $contestants->first()->score }} {{ __('common.pts') }}</p>
+                    <p class="text-2xl font-bold text-yellow-500 mt-1">{{ $contestants->first()->score }}
+                        {{ __('common.pts') }}</p>
                 </div>
             @endif
 

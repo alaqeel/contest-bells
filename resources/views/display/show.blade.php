@@ -23,7 +23,8 @@
 
         {{-- Scoreboard --}}
         <div class="w-full max-w-lg">
-            <h2 class="text-xs text-gray-500 uppercase tracking-widest text-center mb-4">{{ __('scoreboard.scoreboard') }}</h2>
+            <h2 class="text-xs text-gray-500 uppercase tracking-widest text-center mb-4">{{ __('scoreboard.scoreboard') }}
+            </h2>
             <div class="space-y-3" id="display-scoreboard">
                 @foreach ($competition->contestants->sortByDesc('score')->values() as $i => $c)
                     <div class="flex items-center gap-4 bg-gray-900 rounded-2xl px-6 py-4" data-cid="{{ $c->id }}">

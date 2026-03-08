@@ -46,7 +46,8 @@
 
                 {{-- Join link card --}}
                 <div class="bg-gray-900 rounded-2xl p-5 border border-gray-800">
-                    <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">{{ __('judge.share_with_contestants') }}
+                    <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">
+                        {{ __('judge.share_with_contestants') }}
                     </h2>
                     <div class="flex gap-2">
                         <input id="join-url" readonly value="{{ url('/join/' . $competition->room_code) }}"
@@ -65,7 +66,8 @@
                 {{-- Round status card --}}
                 <div class="bg-gray-900 rounded-2xl p-5 border border-gray-800">
                     <div class="flex items-center justify-between mb-4">
-                        <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-wider">{{ __('judge.current_round') }}</h2>
+                        <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-wider">
+                            {{ __('judge.current_round') }}</h2>
                         <span id="round-badge" class="text-xs px-3 py-1 rounded-full font-bold bg-gray-800 text-gray-400">
                             {{ $competition->currentRound ? __('judge.round_number', ['number' => $competition->currentRound->round_number]) : __('judge.no_round') }}
                         </span>
@@ -136,7 +138,8 @@
 
                 {{-- Recent buzz log --}}
                 <div class="bg-gray-900 rounded-2xl p-5 border border-gray-800">
-                    <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">{{ __('judge.event_log') }}</h2>
+                    <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">
+                        {{ __('judge.event_log') }}</h2>
                     <ul id="event-log" class="text-xs text-gray-400 space-y-1 max-h-32 overflow-y-auto font-mono">
                         <li class="text-gray-600">{{ __('judge.ready') }}</li>
                     </ul>
@@ -148,7 +151,8 @@
 
                 {{-- Contestants --}}
                 <div class="bg-gray-900 rounded-2xl p-5 border border-gray-800">
-                    <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">{{ __('judge.contestants') }}</h2>
+                    <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">
+                        {{ __('judge.contestants') }}</h2>
                     <ul class="space-y-2" id="contestant-list">
                         @foreach ($competition->contestants as $c)
                             <li id="contestant-{{ $c->id }}"
@@ -174,7 +178,8 @@
 
                 {{-- Scoreboard --}}
                 <div class="bg-gray-900 rounded-2xl p-5 border border-gray-800">
-                    <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">{{ __('judge.scoreboard') }}</h2>
+                    <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">
+                        {{ __('judge.scoreboard') }}</h2>
                     <ol class="space-y-2" id="scoreboard">
                         @foreach ($competition->contestants->sortByDesc('score')->values() as $i => $c)
                             <li class="flex items-center justify-between">
@@ -196,11 +201,11 @@
         const ROOM_CODE = document.querySelector('meta[name="room-code"]').content;
         const BASE_URL = '/judge/' + ROOM_CODE;
         const TRANS = @json([
-            'copy'          => __('common.copy'),
-            'copied'        => __('common.copied'),
-            'round_number'  => __('judge.round_number'),
-            'waiting_buzz'  => __('judge.waiting_buzz'),
-            'joined'        => __('judge.joined'),
+            'copy' => __('common.copy'),
+            'copied' => __('common.copied'),
+            'round_number' => __('judge.round_number'),
+            'waiting_buzz' => __('judge.waiting_buzz'),
+            'joined' => __('judge.joined'),
         ]);
         let currentRound = @json(
             $competition->currentRound
@@ -269,7 +274,10 @@
             });
             const data = await res.json();
             if (res.ok) {
-                currentRound = { id: data.round_id, status: data.status };
+                currentRound = {
+                    id: data.round_id,
+                    status: data.status
+                };
                 document.getElementById('round-badge').textContent =
                     TRANS.round_number.replace(':number', data.round_number);
                 document.getElementById('waiting-buzz').classList.remove('hidden');
