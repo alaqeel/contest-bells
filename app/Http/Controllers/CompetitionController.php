@@ -32,7 +32,8 @@ class CompetitionController extends Controller
 
         $competition = $this->competitionService->createCompetition(
             $validated['title'],
-            $names
+            $names,
+            $validated['judge_name']
         );
 
         $this->competitionService->startCompetition($competition);

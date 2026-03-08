@@ -9,4 +9,6 @@ return [
     'start_competition'      => 'بدء المسابقة',
     'contestants_note'       => 'سيحصل المتسابقون على رابط للانضمام بعد الإعداد.',
     'competition_ended'      => 'انتهت المسابقة',
+    'judge_name'             => 'اسم الحكم',
+    'judge_name_placeholder' => 'اسمك الكامل',
 ];

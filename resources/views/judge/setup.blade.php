@@ -28,6 +28,14 @@
                 class="bg-gray-900 rounded-2xl p-8 shadow-2xl space-y-6">
                 @csrf
 
+                {{-- Judge name --}}
+                <div>
+                    <label class="block text-sm font-semibold text-gray-300 mb-1">{{ __('competition.judge_name') }}</label>
+                    <input type="text" name="judge_name" value="{{ old('judge_name') }}"
+                        placeholder="{{ __('competition.judge_name_placeholder') }}" required maxlength="100"
+                        class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+
                 {{-- Competition title --}}
                 <div>
                     <label
@@ -43,7 +51,8 @@
                         class="block text-sm font-semibold text-gray-300 mb-2">{{ __('competition.contestant_count') }}</label>
                     <div class="flex gap-3" id="count-buttons">
                         @foreach ([2, 3, 4] as $n)
-                            <button type="button" data-count="{{ $n }}" onclick="setCount({{ $n }})"
+                            <button type="button" data-count="{{ $n }}"
+                                onclick="setCount({{ $n }})"
                                 class="count-btn flex-1 py-3 rounded-xl font-bold text-lg transition
                                    {{ old('contestant_count', 2) == $n ? 'bg-indigo-600 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700' }}">
                                 {{ $n }}

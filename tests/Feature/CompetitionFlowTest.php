@@ -27,6 +27,7 @@ class CompetitionFlowTest extends TestCase
     public function test_judge_can_create_competition(): void
     {
         $res = $this->post(route('competition.store'), [
+            'judge_name'       => 'Test Judge',
             'title'            => 'Science Quiz',
             'contestant_count' => 2,
             'names'            => ['Alice', 'Bob'],

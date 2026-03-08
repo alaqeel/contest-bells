@@ -16,6 +16,7 @@ class CreateCompetitionRequest extends FormRequest
         $count = (int) $this->input('contestant_count', 2);
 
         return [
+            'judge_name'       => ['required', 'string', 'max:100'],
             'title'            => ['required', 'string', 'max:100'],
             'contestant_count' => ['required', 'integer', 'min:2', 'max:4'],
             'names'            => ['required', 'array', "min:{$count}", "max:{$count}"],

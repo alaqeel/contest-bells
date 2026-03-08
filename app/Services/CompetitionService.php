@@ -9,12 +9,13 @@ use Illuminate\Support\Str;
 
 class CompetitionService
 {
-    public function createCompetition(string $title, array $contestantNames): Competition
+    public function createCompetition(string $title, array $contestantNames, string $judgeName = ''): Competition
     {
         $competition = Competition::create([
             'room_code'        => $this->generateRoomCode(),
             'judge_token'      => Str::random(64),
             'title'            => $title,
+            'judge_name'       => $judgeName ?: null,
             'status'           => CompetitionStatus::Setup,
             'contestant_count' => count($contestantNames),
         ]);

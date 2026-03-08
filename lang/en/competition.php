@@ -9,4 +9,6 @@ return [
     'start_competition'      => 'Start Competition',
     'contestants_note'       => 'Contestants will receive a join link after setup.',
     'competition_ended'      => 'Competition Ended',
+    'judge_name'             => 'Judge Name',
+    'judge_name_placeholder' => 'Your full name',
 ];
