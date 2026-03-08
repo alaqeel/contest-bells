@@ -19,7 +19,7 @@ Route::get('/locale/{locale}', function (string $locale) {
     if (in_array($locale, $supported, true)) {
         session(['locale' => $locale]);
     }
-    return redirect()->back()->fallback(route('home'));
+    return redirect()->back(302, [], route('home'));
 })->name('locale.switch');
 
 // Setup page (home)
