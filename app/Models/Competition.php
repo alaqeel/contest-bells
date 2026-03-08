@@ -14,6 +14,8 @@ class Competition extends Model
         'room_code',
         'judge_token',
         'title',
+        'judge_name',
+        'judge_email',
         'status',
         'contestant_count',
         'current_round_id',
@@ -55,5 +57,40 @@ class Competition extends Model
     public function isEnded(): bool
     {
         return $this->status === CompetitionStatus::Ended;
+    }
+
+    // -----------------------------------------------------------------------
+    // Query scopes for admin reporting
+    // -----------------------------------------------------------------------
+
+    /** Filter by competition status value string. */
+    public function scopeByStatus(\Illuminate\Database\Eloquent\Builder $query, string $status): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('status', $status);
+    }
+
+    /** Full-text search on room_code or title. */
+    public function scopeSearch(\Illuminate\Database\Eloquent\Builder $query, string $term): \Illuminate\Database\Eloquent\Builder
+    {
+        $like = '%' . $term . '%';
+
+        return $query->where(function ($q) use ($like) {
+            $q->where('room_code', 'like', $like)
+                ->orWhere('title', 'like', $like)
+                ->orWhere('judge_name', 'like', $like)
+                ->orWhere('judge_email', 'like', $like);
+        });
+    }
+
+    /** Filter competitions created on or after a given date string (Y-m-d). */
+    public function scopeFromDate(\Illuminate\Database\Eloquent\Builder $query, string $date): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->whereDate('created_at', '>=', $date);
+    }
+
+    /** Filter competitions created on or before a given date string (Y-m-d). */
+    public function scopeToDate(\Illuminate\Database\Eloquent\Builder $query, string $date): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->whereDate('created_at', '<=', $date);
     }
 }

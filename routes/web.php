@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Controllers\Admin\AuthController as AdminAuthController;
+use App\Http\Controllers\Admin\CompetitionController as AdminCompetitionController;
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\CompetitionController;
 use App\Http\Controllers\ContestantController;
 use App\Http\Controllers\DisplayController;
@@ -63,3 +66,24 @@ Route::prefix('play/{roomCode}/{contestantId}')->name('contestant.')->group(func
 Route::get('/results/{roomCode}', [ResultsController::class, 'show'])->name('competition.results');
 Route::get('/display/{roomCode}', [DisplayController::class, 'show'])->name('display.show');
 Route::get('/display/{roomCode}/state', [DisplayController::class, 'state'])->name('display.state');
+
+/*
+|--------------------------------------------------------------------------
+| Super Admin Routes
+|--------------------------------------------------------------------------
+*/
+
+// Public: admin login / logout
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::get('/login',  [AdminAuthController::class, 'showLogin'])->name('login');
+    Route::post('/login', [AdminAuthController::class, 'login'])->name('login.submit');
+    Route::post('/logout', [AdminAuthController::class, 'logout'])->name('logout');
+
+    // Protected: requires auth + super_admin role
+    Route::middleware(['auth', 'super_admin'])->group(function () {
+        Route::get('/',                                   [AdminDashboardController::class, 'index'])->name('dashboard');
+        Route::get('/competitions',                       [AdminCompetitionController::class, 'index'])->name('competitions.index');
+        Route::get('/competitions/{competition}',         [AdminCompetitionController::class, 'show'])->name('competitions.show');
+        Route::post('/competitions/{competition}/end',    [AdminCompetitionController::class, 'end'])->name('competitions.end');
+    });
+});
