@@ -28,7 +28,7 @@ class BuzzAccepted implements ShouldBroadcastNow
             'contestant_id'     => $this->contestant->id,
             'contestant_name'   => $this->contestant->display_name,
             'first_buzzed_at'   => $this->round->first_buzzed_at?->toIso8601String(),
-            'answer_deadline_at'=> $this->round->answer_deadline_at?->toIso8601String(),
+            'answer_deadline_at' => $this->round->answer_deadline_at?->toIso8601String(),
         ];
     }
 

@@ -48,7 +48,7 @@ class RoundService
             $round->lockForUpdate();
             $round->update([
                 'status'                  => RoundStatus::Active,
-                'first_buzz_contestant_id'=> null,
+                'first_buzz_contestant_id' => null,
                 'first_buzzed_at'         => null,
                 'answer_deadline_at'      => null,
                 'buzz_opened_at'          => now(),
@@ -103,7 +103,7 @@ class RoundService
             // Reset round to active — clear the first buzz winner
             $round->update([
                 'status'                  => RoundStatus::Active,
-                'first_buzz_contestant_id'=> null,
+                'first_buzz_contestant_id' => null,
                 'first_buzzed_at'         => null,
                 'answer_deadline_at'      => null,
                 'buzz_opened_at'          => now(),

@@ -24,7 +24,7 @@ class Round extends Model
         'status'            => RoundStatus::class,
         'buzz_opened_at'    => 'datetime',
         'first_buzzed_at'   => 'datetime',
-        'answer_deadline_at'=> 'datetime',
+        'answer_deadline_at' => 'datetime',
         'resolved_at'       => 'datetime',
     ];
 

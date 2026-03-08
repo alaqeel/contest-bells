@@ -23,7 +23,7 @@ class CompetitionController extends Controller
     public function store(CreateCompetitionRequest $request): RedirectResponse
     {
         $names = collect($request->input('names', []))
-            ->map(fn ($n) => trim($n))
+            ->map(fn($n) => trim($n))
             ->filter()
             ->values()
             ->all();

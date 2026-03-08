@@ -164,7 +164,7 @@ class ContestantController extends Controller
                 'answer_deadline_at' => $round->answer_deadline_at?->toIso8601String(),
             ] : null,
             'is_locked'   => $isLocked,
-            'locked_until'=> $lockedUntil,
+            'locked_until' => $lockedUntil,
         ]);
     }
 }

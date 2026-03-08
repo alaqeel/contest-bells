@@ -24,7 +24,7 @@ class RoundCompleted implements ShouldBroadcastNow
     {
         return [
             'round_id'   => $this->round->id,
-            'was_correct'=> $this->wasCorrect,
+            'was_correct' => $this->wasCorrect,
             'winner_id'  => $this->round->first_buzz_contestant_id,
         ];
     }

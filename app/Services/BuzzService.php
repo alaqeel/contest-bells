@@ -28,7 +28,12 @@ class BuzzService
         $reason      = null;
 
         DB::transaction(function () use (
-            $competition, $round, $contestant, $attemptedAt, &$accepted, &$reason
+            $competition,
+            $round,
+            $contestant,
+            $attemptedAt,
+            &$accepted,
+            &$reason
         ) {
             // Lock the round row to prevent concurrent winners
             $round = Round::lockForUpdate()->find($round->id);

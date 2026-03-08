@@ -53,7 +53,7 @@ class CompetitionService
         $ranking = $competition->contestants()
             ->orderByDesc('score')
             ->get()
-            ->map(fn ($c) => [
+            ->map(fn($c) => [
                 'id'    => $c->id,
                 'name'  => $c->display_name,
                 'score' => $c->score,
@@ -68,7 +68,7 @@ class CompetitionService
         return $competition->contestants()
             ->orderByDesc('score')
             ->get()
-            ->map(fn ($c) => [
+            ->map(fn($c) => [
                 'id'    => $c->id,
                 'name'  => $c->display_name,
                 'score' => $c->score,
