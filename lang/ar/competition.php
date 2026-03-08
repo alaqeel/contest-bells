@@ -3,7 +3,7 @@ return [
     'setup_title'            => 'مسابقة جديدة',
     'competition_title'      => 'اسم المسابقة',
     'title_placeholder'      => 'مثال: مسابقة العلوم - الجولة 1',
-    'title_default'          => 'مسابقة الأسئلة',
+    'title_default'          => 'مسابقة الأسئلة العامة',
     'contestant_count'       => 'عدد المتسابقين',
     'contestant_placeholder' => 'اسم المتسابق :n',
     'start_competition'      => 'بدء المسابقة',
