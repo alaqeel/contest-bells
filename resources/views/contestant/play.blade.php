@@ -14,34 +14,34 @@
             <div class="flex items-center justify-between mb-1">
                 <h1 class="text-xl font-black truncate">{{ $contestant->display_name }}</h1>
                 <div class="flex items-center gap-2">
-                    <span class="w-2 h-2 rounded-full bg-green-400" id="connection-dot" title="Connected"></span>
-                    <span class="text-xs text-gray-400" id="connection-label">Connected</span>
+                    <span class="w-2 h-2 rounded-full bg-green-400" id="connection-dot" title="{{ __('contestant.connected') }}"></span>
+                    <span class="text-xs text-gray-400" id="connection-label">{{ __('contestant.connected') }}</span>
                 </div>
             </div>
             <p class="text-sm text-gray-400">
-                Room <span class="font-mono text-indigo-400">{{ $competition->room_code }}</span>
+                {{ __('common.room') }} <span class="font-mono text-indigo-400">{{ $competition->room_code }}</span>
             </p>
         </div>
 
         {{-- Score --}}
         <div class="text-center">
-            <p class="text-xs text-gray-500 uppercase tracking-widest">Score</p>
+            <p class="text-xs text-gray-500 uppercase tracking-widest">{{ __('contestant.score') }}</p>
             <p class="text-6xl font-black text-white mt-1" id="score">{{ $contestant->score }}</p>
         </div>
 
         {{-- Status message --}}
         <div class="text-center text-sm font-semibold text-gray-400 min-h-[2rem]" id="status-msg">
             @if ($competition->isEnded())
-                Competition ended
+                {{ __('contestant.competition_ended') }}
             @elseif (!$competition->currentRound || $competition->currentRound->status->value === 'pending')
-                Waiting for judge to start round...
+                {{ __('contestant.waiting_for_round') }}
             @elseif ($competition->currentRound->status->value === 'active')
-                Round active — buzz now!
+                {{ __('contestant.buzz_active') }}
             @elseif ($competition->currentRound->status->value === 'locked')
                 @if ($competition->currentRound->first_buzz_contestant_id == $contestant->id)
-                    You buzzed first! Answer now.
+                    {{ __('contestant.you_buzzed_first') }}
                 @else
-                    {{ $competition->currentRound->firstBuzzContestant?->display_name }} buzzed first.
+                    {{ __('contestant.was_first', ['name' => $competition->currentRound->firstBuzzContestant?->display_name]) }}
                 @endif
             @endif
         </div>
@@ -57,13 +57,13 @@
                            ? 'bg-red-600 hover:bg-red-500 text-white shadow-red-900/50 cursor-pointer animate-pulse'
                            : 'bg-gray-700 text-gray-500 cursor-not-allowed') }}"
                 {{ $competition->isEnded() || $competition->currentRound?->status->value !== 'active' ? 'disabled' : '' }}>
-                BUZZ
+                {{ __('contestant.buzz') }}
             </button>
         </div>
 
         {{-- Lockout countdown --}}
         <div id="lockout-area" class="text-center hidden">
-            <p class="text-orange-400 font-bold">Locked out — wait <span id="lockout-countdown">10</span>s</p>
+            <p class="text-orange-400 font-bold">{{ __('contestant.locked_out', ['seconds' => '']) }}<span id="lockout-countdown">10</span>s</p>
         </div>
 
         {{-- Bottom spacer --}}
@@ -79,6 +79,22 @@
         const ROOM_CODE = document.querySelector('meta[name="room-code"]').content;
         const CONTESTANT_ID = parseInt(document.querySelector('meta[name="contestant-id"]').content);
         const BASE_URL = '/play/' + ROOM_CODE + '/' + CONTESTANT_ID;
+        const TRANS = @json([
+            'buzz_active'           => __('contestant.buzz_active'),
+            'you_buzzed_first'      => __('contestant.you_buzzed_first'),
+            'was_first'             => __('contestant.was_first'),
+            'waiting_for_round'     => __('contestant.waiting_for_round'),
+            'locked_out_msg'        => __('contestant.locked_out_msg'),
+            'locked_out_short'      => __('contestant.locked_out_short'),
+            'not_accepted'          => __('contestant.not_accepted'),
+            'competition_ended'     => __('contestant.competition_ended_excl'),
+            'round_over'            => __('contestant.round_over'),
+            'correct_answer'        => __('contestant.correct_answer'),
+            'buzzers_reset'         => __('contestant.buzzers_reset'),
+            'connected'             => __('contestant.connected'),
+            'disconnected'          => __('contestant.disconnected'),
+            'reconnecting'          => __('contestant.reconnecting'),
+        ]);
 
         let buzzerEnabled = {{ $competition->currentRound?->status->value === 'active' ? 'true' : 'false' }};
         let lockoutInterval = null;
@@ -109,7 +125,7 @@
             clearInterval(lockoutInterval);
             document.getElementById('lockout-area').classList.remove('hidden');
             setBuzzerState(false);
-            setStatus('Wrong answer — locked out...', 'text-orange-400');
+            setStatus(TRANS.locked_out_msg, 'text-orange-400');
 
             lockoutInterval = setInterval(() => {
                 const rem = Math.ceil((new Date(untilIso).getTime() - Date.now()) / 1000);
@@ -143,9 +159,9 @@
 
             if (!res.ok) {
                 if (data.reason === 'contestant_locked_out') {
-                    setStatus('You are locked out.', 'text-orange-400');
+                    setStatus(TRANS.locked_out_short, 'text-orange-400');
                 } else {
-                    setStatus('Not accepted: ' + (data.reason || 'too late'), 'text-gray-500');
+                    setStatus(TRANS.not_accepted + ' ' + (data.reason || 'too late'), 'text-gray-500');
                     // Re-enable if round is still active (another contestant won)
                 }
             }
@@ -158,7 +174,7 @@
 
             channel.listen('.RoundStarted', e => {
                 setBuzzerState(true, true);
-                setStatus('Round ' + e.round_number + ' — BUZZ NOW! 🔔', 'text-green-400');
+                setStatus(TRANS.buzz_active, 'text-green-400');
                 document.getElementById('lockout-area').classList.add('hidden');
                 clearInterval(lockoutInterval);
             });
@@ -168,10 +184,10 @@
                 document.getElementById('lockout-area').classList.add('hidden');
                 setBuzzerState(false);
                 if (e.contestant_id === CONTESTANT_ID) {
-                    setStatus('🎉 You buzzed first! Answer now.', 'text-yellow-400');
+                    setStatus(TRANS.you_buzzed_first, 'text-yellow-400');
                     document.getElementById('buzz-btn').classList.add('ring-4', 'ring-yellow-400');
                 } else {
-                    setStatus('❌ ' + e.contestant_name + ' was first.', 'text-gray-500');
+                    setStatus(TRANS.was_first.replace(':name', e.contestant_name), 'text-gray-500');
                 }
             });
 
@@ -186,15 +202,15 @@
                 document.getElementById('lockout-area').classList.add('hidden');
                 document.getElementById('buzz-btn').classList.remove('ring-4', 'ring-yellow-400');
                 setBuzzerState(true, true);
-                setStatus('Buzzers reset — buzz now!', 'text-green-400');
+                setStatus(TRANS.buzzers_reset, 'text-green-400');
             });
 
             channel.listen('.RoundCompleted', e => {
                 setBuzzerState(false);
                 if (e.was_correct && e.winner_id === CONTESTANT_ID) {
-                    setStatus('✅ Correct! +1 point', 'text-green-400');
+                    setStatus(TRANS.correct_answer, 'text-green-400');
                 } else {
-                    setStatus('Round over. Waiting for next round...', 'text-gray-400');
+                    setStatus(TRANS.round_over, 'text-gray-400');
                 }
                 document.getElementById('buzz-btn').classList.remove('ring-4', 'ring-yellow-400');
             });
@@ -206,23 +222,23 @@
 
             channel.listen('.CompetitionEnded', e => {
                 setBuzzerState(false);
-                setStatus('Competition ended!', 'text-gray-400');
+                setStatus(TRANS.competition_ended, 'text-gray-400');
                 setTimeout(() => window.location.href = e.results_url, 2000);
             });
 
             // Connection state indicator
             window.Echo.connector.pusher.connection.bind('connected', () => {
                 document.getElementById('connection-dot').className = 'w-2 h-2 rounded-full bg-green-400';
-                document.getElementById('connection-label').textContent = 'Connected';
+                document.getElementById('connection-label').textContent = TRANS.connected;
             });
             window.Echo.connector.pusher.connection.bind('disconnected', () => {
                 document.getElementById('connection-dot').className = 'w-2 h-2 rounded-full bg-red-400';
-                document.getElementById('connection-label').textContent = 'Disconnected';
+                document.getElementById('connection-label').textContent = TRANS.disconnected;
             });
             window.Echo.connector.pusher.connection.bind('connecting', () => {
                 document.getElementById('connection-dot').className =
                     'w-2 h-2 rounded-full bg-yellow-400 animate-pulse';
-                document.getElementById('connection-label').textContent = 'Reconnecting...';
+                document.getElementById('connection-label').textContent = TRANS.reconnecting;
             });
         }
     </script>

@@ -9,8 +9,8 @@
             {{-- Logo / Brand --}}
             <div class="text-center mb-10">
                 <div class="text-6xl mb-3">🔔</div>
-            <h1 class="text-4xl font-black tracking-tight text-white">{{ __('common.app_name') }}</h1>
-                    <p class="text-gray-400 mt-2 text-sm">{{ __('common.tagline') }}</p>
+                <h1 class="text-4xl font-black tracking-tight text-white">{{ __('common.app_name') }}</h1>
+                <p class="text-gray-400 mt-2 text-sm">{{ __('common.tagline') }}</p>
             </div>
 
             {{-- Validation errors --}}
@@ -30,15 +30,17 @@
 
                 {{-- Competition title --}}
                 <div>
-                    <label class="block text-sm font-semibold text-gray-300 mb-1">{{ __('competition.competition_title') }}</label>
-                    <input type="text" name="title" value="{{ old('title', 'Quiz Competition') }}"
+                    <label
+                        class="block text-sm font-semibold text-gray-300 mb-1">{{ __('competition.competition_title') }}</label>
+                    <input type="text" name="title" value="{{ old('title', __('competition.title_default')) }}"
                         placeholder="{{ __('competition.title_placeholder') }}"
                         class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500">
                 </div>
 
                 {{-- Contestant count selector --}}
                 <div>
-                    <label class="block text-sm font-semibold text-gray-300 mb-2">{{ __('competition.contestant_count') }}</label>
+                    <label
+                        class="block text-sm font-semibold text-gray-300 mb-2">{{ __('competition.contestant_count') }}</label>
                     <div class="flex gap-3" id="count-buttons">
                         @foreach ([2, 3, 4] as $n)
                             <button type="button" data-count="{{ $n }}" onclick="setCount({{ $n }})"
@@ -60,12 +62,12 @@
                 <button type="submit"
                     class="w-full py-4 bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700
                        text-white font-bold text-lg rounded-xl transition shadow-lg shadow-indigo-900/40">
-                    🚀 Start Competition
+                    {{ __('competition.start_competition') }}
                 </button>
             </form>
 
             <p class="text-center text-gray-600 text-xs mt-6">
-                Contestants will receive a join link after setup.
+                {{ __('competition.contestants_note') }}
             </p>
         </div>
     </div>
@@ -73,6 +75,7 @@
 
 @push('scripts')
     <script>
+        const TRANS = @json(['contestant_placeholder' => __('competition.contestant_placeholder')]);
         const oldNames = @json(old('names', []));
         let currentCount = {{ old('contestant_count', 2) }};
 

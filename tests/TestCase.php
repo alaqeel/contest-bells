@@ -15,5 +15,6 @@ abstract class TestCase extends BaseTestCase
         $this->withoutMiddleware(ValidateCsrfToken::class);
         // Prevent any test from accidentally hitting Reverb
         Event::fake();
+        $this->withoutExceptionHandling();
     }
 }

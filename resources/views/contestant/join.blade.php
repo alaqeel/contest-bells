@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Join — ' . $competition->title)
+@section('title', __('contestant.select_name') . ' — ' . $competition->title)
 
 @push('head')
     <meta name="room-code" content="{{ $competition->room_code }}">
@@ -12,7 +12,7 @@
             <div class="text-center mb-8">
                 <div class="text-5xl mb-3">🔔</div>
                 <h1 class="text-2xl font-black text-white">{{ $competition->title }}</h1>
-                <p class="text-gray-400 text-sm mt-1">Choose your name to join</p>
+                <p class="text-gray-400 text-sm mt-1">{{ __('contestant.select_prompt') }}</p>
             </div>
 
             @if ($errors->any())
@@ -33,7 +33,7 @@
                            : 'bg-indigo-700 hover:bg-indigo-600 active:scale-95 text-white' }}">
                         <span>{{ $contestant->display_name }}</span>
                         @if ($contestant->isClaimed())
-                            <span class="text-xs font-normal text-gray-500">taken</span>
+                            <span class="text-xs font-normal text-gray-500">{{ __('contestant.already_claimed') }}</span>
                         @else
                             <span class="text-xl">→</span>
                         @endif
@@ -43,7 +43,7 @@
             </form>
 
             <p class="text-center text-gray-600 text-xs mt-8">
-                Room: <span class="font-mono text-gray-500">{{ $competition->room_code }}</span>
+                {{ __('common.room') }}: <span class="font-mono text-gray-500">{{ $competition->room_code }}</span>
             </p>
         </div>
     </div>
@@ -51,8 +51,8 @@
 
 @push('scripts')
     <script>
-        // Live update: if another contestant claims a name, grey it out
         const ROOM_CODE = document.querySelector('meta[name="room-code"]').content;
+        const TRANS = @json(['already_claimed' => __('contestant.already_claimed')]);
         if (window.Echo) {
             window.Echo.channel('competition.' + ROOM_CODE)
                 .listen('.ContestantClaimed', e => {
@@ -62,7 +62,7 @@
                             btn.className = btn.className
                                 .replace('bg-indigo-700 hover:bg-indigo-600 active:scale-95 text-white', '') +
                                 ' bg-gray-800 text-gray-600 cursor-not-allowed opacity-60';
-                            btn.querySelector(':last-child').textContent = 'taken';
+                            btn.querySelector(':last-child').textContent = TRANS.already_claimed;
                         }
                     });
                 });

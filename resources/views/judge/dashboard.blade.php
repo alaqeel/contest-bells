@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Judge Dashboard — ' . $competition->title)
+@section('title', __('judge.dashboard_title') . ' — ' . $competition->title)
 
 @push('head')
     <meta name="room-code" content="{{ $competition->room_code }}">
@@ -15,7 +15,7 @@
                     <span class="text-2xl">🔔</span>
                     <div>
                         <h1 class="font-bold text-lg leading-tight">{{ $competition->title }}</h1>
-                        <p class="text-xs text-gray-400">Room: <span
+                        <p class="text-xs text-gray-400">{{ __('common.room') }}: <span
                                 class="font-mono font-bold text-indigo-400">{{ $competition->room_code }}</span></p>
                     </div>
                 </div>
@@ -27,11 +27,11 @@
                     </span>
                     @if (!$competition->isEnded())
                         <form action="{{ route('judge.end', $competition->room_code) }}" method="POST"
-                            onsubmit="return confirm('End the competition? This cannot be undone.')">
+                            onsubmit="return confirm('{{ __('judge.end_confirm') }}')">
                             @csrf
                             <button
                                 class="text-xs px-3 py-1 bg-red-800/60 hover:bg-red-700 text-red-300 rounded-lg transition">
-                                End Competition
+                                {{ __('judge.end_competition') }}
                             </button>
                         </form>
                     @endif
@@ -46,14 +46,14 @@
 
                 {{-- Join link card --}}
                 <div class="bg-gray-900 rounded-2xl p-5 border border-gray-800">
-                    <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">Share with contestants
+                    <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">{{ __('judge.share_with_contestants') }}
                     </h2>
                     <div class="flex gap-2">
                         <input id="join-url" readonly value="{{ url('/join/' . $competition->room_code) }}"
                             class="flex-1 bg-gray-800 rounded-xl px-3 py-2 text-sm text-indigo-300 font-mono truncate border border-gray-700">
                         <button onclick="copyJoinLink()"
                             class="px-4 py-2 bg-indigo-700 hover:bg-indigo-600 text-white rounded-xl text-sm font-semibold transition">
-                            Copy
+                            {{ __('common.copy') }}
                         </button>
                     </div>
                     {{-- QR code placeholder --}}
@@ -65,9 +65,9 @@
                 {{-- Round status card --}}
                 <div class="bg-gray-900 rounded-2xl p-5 border border-gray-800">
                     <div class="flex items-center justify-between mb-4">
-                        <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-wider">Current Round</h2>
+                        <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-wider">{{ __('judge.current_round') }}</h2>
                         <span id="round-badge" class="text-xs px-3 py-1 rounded-full font-bold bg-gray-800 text-gray-400">
-                            {{ $competition->currentRound ? 'Round ' . $competition->currentRound->round_number : 'No round' }}
+                            {{ $competition->currentRound ? __('judge.round_number', ['number' => $competition->currentRound->round_number]) : __('judge.no_round') }}
                         </span>
                     </div>
 
@@ -75,7 +75,7 @@
                     <div id="first-buzzer-area"
                         class="text-center py-6 mb-4
                      {{ $competition->currentRound?->first_buzz_contestant_id ? 'block' : 'hidden' }}">
-                        <p class="text-xs text-gray-500 mb-1">First buzzer:</p>
+                        <p class="text-xs text-gray-500 mb-1">{{ __('judge.first_buzzer') }}</p>
                         <p class="text-3xl font-black text-yellow-400" id="first-buzzer-name">
                             {{ $competition->currentRound?->firstBuzzContestant?->display_name ?? '' }}
                         </p>
@@ -90,7 +90,7 @@
                         class="text-center py-6 mb-4
                      {{ $competition->currentRound && !$competition->currentRound->first_buzz_contestant_id ? 'block' : ($competition->currentRound ? 'hidden' : 'block') }}">
                         <p class="text-gray-500 text-sm">
-                            {{ $competition->currentRound ? 'Waiting for a buzz...' : 'No round started yet.' }}
+                            {{ $competition->currentRound ? __('judge.waiting_buzz') : __('judge.no_round_started') }}
                         </p>
                     </div>
 
@@ -103,7 +103,7 @@
                                 class="px-5 py-3 bg-green-700 hover:bg-green-600 text-white font-bold rounded-xl transition text-sm shadow-lg shadow-green-900/30
                                {{ $competition->currentRound?->status->value === 'active' || $competition->currentRound?->status->value === 'locked' ? 'opacity-50 cursor-not-allowed' : '' }}"
                                 {{ $competition->currentRound?->status->value === 'active' || $competition->currentRound?->status->value === 'locked' ? 'disabled' : '' }}>
-                                ▶ Start Round
+                                {{ __('judge.start_round') }}
                             </button>
 
                             {{-- Reset Buzzers --}}
@@ -111,7 +111,7 @@
                                 class="px-5 py-3 bg-yellow-700 hover:bg-yellow-600 text-white font-bold rounded-xl transition text-sm
                                {{ !$competition->currentRound ? 'opacity-50 cursor-not-allowed' : '' }}"
                                 {{ !$competition->currentRound ? 'disabled' : '' }}>
-                                ↺ Reset Buzzers
+                                {{ __('judge.reset_buzzers') }}
                             </button>
 
                             {{-- Correct --}}
@@ -119,7 +119,7 @@
                                 class="px-5 py-3 bg-blue-700 hover:bg-blue-600 text-white font-bold rounded-xl transition text-sm
                                {{ $competition->currentRound?->status->value !== 'locked' ? 'opacity-50 cursor-not-allowed' : '' }}"
                                 {{ $competition->currentRound?->status->value !== 'locked' ? 'disabled' : '' }}>
-                                ✓ Correct
+                                {{ __('judge.correct') }}
                             </button>
 
                             {{-- Wrong --}}
@@ -127,7 +127,7 @@
                                 class="px-5 py-3 bg-red-700 hover:bg-red-600 text-white font-bold rounded-xl transition text-sm
                                {{ $competition->currentRound?->status->value !== 'locked' ? 'opacity-50 cursor-not-allowed' : '' }}"
                                 {{ $competition->currentRound?->status->value !== 'locked' ? 'disabled' : '' }}>
-                                ✗ Wrong
+                                {{ __('judge.wrong') }}
                             </button>
 
                         </div>
@@ -136,9 +136,9 @@
 
                 {{-- Recent buzz log --}}
                 <div class="bg-gray-900 rounded-2xl p-5 border border-gray-800">
-                    <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">Event Log</h2>
+                    <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">{{ __('judge.event_log') }}</h2>
                     <ul id="event-log" class="text-xs text-gray-400 space-y-1 max-h-32 overflow-y-auto font-mono">
-                        <li class="text-gray-600">— Ready —</li>
+                        <li class="text-gray-600">{{ __('judge.ready') }}</li>
                     </ul>
                 </div>
             </div>
@@ -148,7 +148,7 @@
 
                 {{-- Contestants --}}
                 <div class="bg-gray-900 rounded-2xl p-5 border border-gray-800">
-                    <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">Contestants</h2>
+                    <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">{{ __('judge.contestants') }}</h2>
                     <ul class="space-y-2" id="contestant-list">
                         @foreach ($competition->contestants as $c)
                             <li id="contestant-{{ $c->id }}"
@@ -161,7 +161,7 @@
                                 </div>
                                 <div class="flex items-center gap-2">
                                     <span class="text-xs text-gray-500" id="claimed-label-{{ $c->id }}">
-                                        {{ $c->isClaimed() ? 'joined' : 'waiting' }}
+                                        {{ $c->isClaimed() ? __('judge.joined') : __('judge.waiting') }}
                                     </span>
                                     <span class="font-bold text-indigo-300 text-sm" id="score-{{ $c->id }}">
                                         {{ $c->score }}
@@ -174,7 +174,7 @@
 
                 {{-- Scoreboard --}}
                 <div class="bg-gray-900 rounded-2xl p-5 border border-gray-800">
-                    <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">Scoreboard</h2>
+                    <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">{{ __('judge.scoreboard') }}</h2>
                     <ol class="space-y-2" id="scoreboard">
                         @foreach ($competition->contestants->sortByDesc('score')->values() as $i => $c)
                             <li class="flex items-center justify-between">
@@ -195,6 +195,13 @@
     <script>
         const ROOM_CODE = document.querySelector('meta[name="room-code"]').content;
         const BASE_URL = '/judge/' + ROOM_CODE;
+        const TRANS = @json([
+            'copy'          => __('common.copy'),
+            'copied'        => __('common.copied'),
+            'round_number'  => __('judge.round_number'),
+            'waiting_buzz'  => __('judge.waiting_buzz'),
+            'joined'        => __('judge.joined'),
+        ]);
         let currentRound = @json(
             $competition->currentRound
                 ? ['id' => $competition->currentRound->id, 'status' => $competition->currentRound->status->value]
@@ -262,13 +269,12 @@
             });
             const data = await res.json();
             if (res.ok) {
-                currentRound = {
-                    id: data.round_id,
-                    status: data.status
-                };
-                document.getElementById('round-badge').textContent = 'Round ' + data.round_number;
+                currentRound = { id: data.round_id, status: data.status };
+                document.getElementById('round-badge').textContent =
+                    TRANS.round_number.replace(':number', data.round_number);
                 document.getElementById('waiting-buzz').classList.remove('hidden');
                 document.getElementById('first-buzzer-area').classList.add('hidden');
+                document.getElementById('waiting-buzz').querySelector('p').textContent = TRANS.waiting_buzz;
                 document.getElementById('answer-timer').classList.add('hidden');
                 clearInterval(timerInterval);
                 setButtonState('active');
@@ -327,8 +333,8 @@
 
         function copyJoinLink() {
             navigator.clipboard.writeText(document.getElementById('join-url').value);
-            document.querySelector('button[onclick="copyJoinLink()"]').textContent = 'Copied!';
-            setTimeout(() => document.querySelector('button[onclick="copyJoinLink()"]').textContent = 'Copy', 2000);
+            document.querySelector('button[onclick="copyJoinLink()"]').textContent = TRANS.copied;
+            setTimeout(() => document.querySelector('button[onclick="copyJoinLink()"]').textContent = TRANS.copy, 2000);
         }
 
         // ── Realtime via Echo ────────────────────────────────────────────────────────
@@ -372,7 +378,7 @@
                     const dot = document.getElementById('claimed-dot-' + e.contestant_id);
                     const lbl = document.getElementById('claimed-label-' + e.contestant_id);
                     if (dot) dot.className = dot.className.replace('bg-gray-600', 'bg-green-400');
-                    if (lbl) lbl.textContent = 'joined';
+                    if (lbl) lbl.textContent = TRANS.joined;
                     log('👤 ' + e.contestant_name + ' joined');
                 })
 

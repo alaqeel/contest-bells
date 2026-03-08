@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Display — ' . $competition->title)
+@section('title', __('scoreboard.scoreboard') . ' — ' . $competition->title)
 
 @push('head')
     <meta name="room-code" content="{{ $competition->room_code }}">
@@ -15,7 +15,7 @@
         {{-- First buzzer --}}
         <div id="display-buzzer" class="text-center mb-10 min-h-[6rem]"
             style="{{ !$competition->currentRound?->first_buzz_contestant_id ? 'display:none' : '' }}">
-            <p class="text-gray-400 text-sm">BUZZED FIRST</p>
+            <p class="text-gray-400 text-sm">{{ __('scoreboard.buzzed_first') }}</p>
             <p class="text-7xl font-black text-yellow-400" id="display-buzzer-name">
                 {{ $competition->currentRound?->firstBuzzContestant?->display_name ?? '' }}
             </p>
@@ -23,7 +23,7 @@
 
         {{-- Scoreboard --}}
         <div class="w-full max-w-lg">
-            <h2 class="text-xs text-gray-500 uppercase tracking-widest text-center mb-4">Scoreboard</h2>
+            <h2 class="text-xs text-gray-500 uppercase tracking-widest text-center mb-4">{{ __('scoreboard.scoreboard') }}</h2>
             <div class="space-y-3" id="display-scoreboard">
                 @foreach ($competition->contestants->sortByDesc('score')->values() as $i => $c)
                     <div class="flex items-center gap-4 bg-gray-900 rounded-2xl px-6 py-4" data-cid="{{ $c->id }}">
@@ -36,7 +36,7 @@
             </div>
         </div>
 
-        <p class="mt-10 text-gray-700 text-xs">Public display screen — share this URL on your projector or TV</p>
+        <p class="mt-10 text-gray-700 text-xs">{{ __('scoreboard.public_display') }}</p>
     </div>
 @endsection
 
