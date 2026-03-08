@@ -22,14 +22,16 @@ class CompetitionController extends Controller
     /** Create competition and redirect judge to dashboard */
     public function store(CreateCompetitionRequest $request): RedirectResponse
     {
-        $names = collect($request->input('names', []))
+        $validated = $request->validated();
+
+        $names = collect($validated['names'] ?? [])
             ->map(fn($n) => trim($n))
             ->filter()
             ->values()
             ->all();
 
         $competition = $this->competitionService->createCompetition(
-            $request->input('title', 'Quiz Competition'),
+            $validated['title'],
             $names
         );
 
