@@ -79,8 +79,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::post('/login', [AdminAuthController::class, 'login'])->name('login.submit');
     Route::post('/logout', [AdminAuthController::class, 'logout'])->name('logout');
 
-    // Protected: requires auth + super_admin role
-    Route::middleware(['auth', 'super_admin'])->group(function () {
+    // Protected: super_admin middleware handles both auth check and role check
+    Route::middleware(['super_admin'])->group(function () {
         Route::get('/',                                   [AdminDashboardController::class, 'index'])->name('dashboard');
         Route::get('/competitions',                       [AdminCompetitionController::class, 'index'])->name('competitions.index');
         Route::get('/competitions/{competition}',         [AdminCompetitionController::class, 'show'])->name('competitions.show');
