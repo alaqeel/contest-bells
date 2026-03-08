@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\ContestantClaimed;
 use App\Models\Competition;
 use App\Models\Contestant;
 use App\Services\BuzzService;
@@ -70,8 +69,6 @@ class ContestantController extends Controller
         $contestant = $result['contestant'];
         session(['claim_token_' . $contestant->id => $result['token']]);
 
-        ContestantClaimed::dispatch($competition, $contestant);
-
         return redirect()->route('contestant.play', [
             'roomCode'     => $roomCode,
             'contestantId' => $contestant->id,
@@ -126,6 +123,23 @@ class ContestantController extends Controller
         $result = $this->buzzService->handleBuzz($competition, $round, $contestant);
 
         return response()->json($result, $result['accepted'] ? 200 : 422);
+    }
+
+    /** GET: contestant claim statuses for join-page polling */
+    public function joinState(string $roomCode): JsonResponse
+    {
+        $competition = Competition::where('room_code', $roomCode)
+            ->with('contestants')
+            ->firstOrFail();
+
+        return response()->json([
+            'status'      => $competition->status->value,
+            'contestants' => $competition->contestants->map(fn($c) => [
+                'id'         => $c->id,
+                'name'       => $c->display_name,
+                'is_claimed' => $c->isClaimed(),
+            ]),
+        ]);
     }
 
     /** GET: current state for contestant (for reconnect) */

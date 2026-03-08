@@ -345,64 +345,98 @@
             setTimeout(() => document.querySelector('button[onclick="copyJoinLink()"]').textContent = TRANS.copy, 2000);
         }
 
-        // ── Realtime via Echo ────────────────────────────────────────────────────────
-        if (window.Echo) {
-            window.Echo.channel('competition.' + ROOM_CODE)
+        // ── Polling ──────────────────────────────────────────────────────────────────
+        let lastRoundId   = currentRound?.id ?? null;
+        let lastRoundStatus = currentRound?.status ?? null;
+        let lastFirstBuzzer = null;
+        let pollInterval  = null;
 
-                .listen('.RoundStarted', e => {
-                    currentRound = {
-                        id: e.round_id,
-                        status: 'active'
-                    };
-                    log('▶ Round ' + e.round_number + ' started (realtime)');
-                })
+        function applyState(data) {
+            // Competition ended → redirect
+            if (data.status === 'ended') {
+                window.location.href = '/results/' + ROOM_CODE;
+                return;
+            }
 
-                .listen('.BuzzAccepted', e => {
-                    document.getElementById('first-buzzer-name').textContent = e.contestant_name;
-                    document.getElementById('first-buzzer-area').classList.remove('hidden');
-                    document.getElementById('waiting-buzz').classList.add('hidden');
-                    if (currentRound) currentRound.status = 'locked';
-                    setButtonState('locked');
-                    if (e.answer_deadline_at) startAnswerTimer(e.answer_deadline_at);
-                    log('🔔 ' + e.contestant_name + ' buzzed first!');
-                })
-
-                .listen('.RoundReset', e => {
-                    document.getElementById('first-buzzer-area').classList.add('hidden');
-                    document.getElementById('waiting-buzz').classList.remove('hidden');
-                    if (currentRound) currentRound.status = 'active';
-                    clearInterval(timerInterval);
-                    document.getElementById('answer-timer').classList.add('hidden');
-                    setButtonState('active');
-                    log('↺ Round reset (realtime)');
-                })
-
-                .listen('.ScoreUpdated', e => {
-                    updateScoreboard(e.scoreboard);
-                    log('📊 Scoreboard updated');
-                })
-
-                .listen('.ContestantClaimed', e => {
-                    const dot = document.getElementById('claimed-dot-' + e.contestant_id);
-                    const lbl = document.getElementById('claimed-label-' + e.contestant_id);
-                    if (dot) dot.className = dot.className.replace('bg-gray-600', 'bg-green-400');
-                    if (lbl) lbl.textContent = TRANS.joined;
-                    log('👤 ' + e.contestant_name + ' joined');
-                })
-
-                .listen('.RoundCompleted', e => {
-                    if (currentRound) currentRound.status = 'completed';
-                    clearInterval(timerInterval);
-                    document.getElementById('answer-timer').classList.add('hidden');
-                    setButtonState('completed');
-                })
-
-                .listen('.CompetitionEnded', () => {
-                    window.location.href = '/results/' + ROOM_CODE;
+            // Contestant claim status
+            if (data.contestants) {
+                data.contestants.forEach(c => {
+                    const dot = document.getElementById('claimed-dot-' + c.id);
+                    const lbl = document.getElementById('claimed-label-' + c.id);
+                    if (dot && c.claimed && dot.classList.contains('bg-gray-600')) {
+                        dot.classList.replace('bg-gray-600', 'bg-green-400');
+                        if (lbl) lbl.textContent = TRANS.joined;
+                        log('👤 ' + c.name + ' joined');
+                    }
                 });
+            }
+
+            // Scoreboard
+            if (data.scoreboard) updateScoreboard(data.scoreboard);
+
+            const round = data.round;
+            const roundStatus = round?.status ?? 'none';
+
+            // Round changed (new round started)
+            if (round && round.id !== lastRoundId) {
+                lastRoundId = round.id;
+                currentRound = { id: round.id, status: round.status };
+                document.getElementById('round-badge').textContent =
+                    TRANS.round_number.replace(':number', round.number);
+                document.getElementById('first-buzzer-area').classList.add('hidden');
+                document.getElementById('waiting-buzz').classList.remove('hidden');
+                document.getElementById('answer-timer').classList.add('hidden');
+                clearInterval(timerInterval);
+                lastFirstBuzzer = null;
+                log('▶ Round ' + round.number + ' started');
+            }
+
+            // First buzzer appeared
+            if (round && round.first_buzzer && round.first_buzzer !== lastFirstBuzzer) {
+                lastFirstBuzzer = round.first_buzzer;
+                document.getElementById('first-buzzer-name').textContent = round.first_buzzer;
+                document.getElementById('first-buzzer-area').classList.remove('hidden');
+                document.getElementById('waiting-buzz').classList.add('hidden');
+                if (round.answer_deadline_at) startAnswerTimer(round.answer_deadline_at);
+                log('🔔 ' + round.first_buzzer + ' buzzed first!');
+            }
+
+            // First buzzer cleared (reset)
+            if (round && !round.first_buzzer && lastFirstBuzzer) {
+                lastFirstBuzzer = null;
+                document.getElementById('first-buzzer-area').classList.add('hidden');
+                document.getElementById('waiting-buzz').classList.remove('hidden');
+                document.getElementById('answer-timer').classList.add('hidden');
+                clearInterval(timerInterval);
+                log('↺ Buzzers reset');
+            }
+
+            if (roundStatus !== lastRoundStatus) {
+                lastRoundStatus = roundStatus;
+                if (currentRound) currentRound.status = roundStatus;
+                setButtonState(roundStatus);
+                if (roundStatus === 'completed') {
+                    clearInterval(timerInterval);
+                    document.getElementById('answer-timer').classList.add('hidden');
+                    log('✓ Round completed');
+                }
+            }
         }
 
-        // Init button states
+        async function pollState() {
+            try {
+                const res = await fetch(BASE_URL + '/state', { headers: { 'Accept': 'application/json' } });
+                if (res.ok) applyState(await res.json());
+            } catch (e) { /* network blip — ignore */ }
+        }
+
+        function startPolling(intervalMs) {
+            clearInterval(pollInterval);
+            pollInterval = setInterval(pollState, intervalMs);
+        }
+
+        // Init
         setButtonState(currentRound?.status || 'none');
+        startPolling(1000);
     </script>
 @endpush

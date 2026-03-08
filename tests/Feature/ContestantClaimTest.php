@@ -2,10 +2,8 @@
 
 namespace Tests\Feature;
 
-use App\Events\ContestantClaimed;
 use App\Services\CompetitionService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Event;
 use Tests\TestCase;
 
 class ContestantClaimTest extends TestCase
@@ -36,8 +34,6 @@ class ContestantClaimTest extends TestCase
         $alice->refresh();
         $this->assertNotNull($alice->claim_token);
         $this->assertNotNull($alice->claimed_at);
-
-        Event::assertDispatched(ContestantClaimed::class);
     }
 
     public function test_cannot_claim_same_name_twice(): void

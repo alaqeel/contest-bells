@@ -3,14 +3,12 @@
 namespace Tests\Feature;
 
 use App\Enums\RoundStatus;
-use App\Events\BuzzAccepted;
 use App\Models\BuzzAttempt;
 use App\Models\ContestantLockout;
 use App\Services\BuzzService;
 use App\Services\CompetitionService;
 use App\Services\RoundService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Event;
 use Tests\TestCase;
 
 class BuzzerConcurrencyTest extends TestCase
@@ -33,8 +31,6 @@ class BuzzerConcurrencyTest extends TestCase
         $this->assertEquals(RoundStatus::Locked, $round->status);
         $this->assertEquals($alice->id, $round->first_buzz_contestant_id);
         $this->assertNotNull($round->answer_deadline_at);
-
-        Event::assertDispatched(BuzzAccepted::class);
     }
 
     public function test_second_buzz_is_rejected(): void

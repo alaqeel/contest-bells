@@ -170,78 +170,81 @@
             // Accepted case is handled via BuzzAccepted broadcast event
         }
 
-        // ── Echo ──────────────────────────────────────────────────────────────────
-        if (window.Echo) {
-            const channel = window.Echo.channel('competition.' + ROOM_CODE);
+        // ── Polling ──────────────────────────────────────────────────────────────
+        let lastRoundId     = null;
+        let lastRoundStatus = null;
+        let lastFirstBuzzer = null;
+        let pollInterval    = null;
 
-            channel.listen('.RoundStarted', e => {
-                setBuzzerState(true, true);
-                setStatus(TRANS.buzz_active, 'text-green-400');
-                document.getElementById('lockout-area').classList.add('hidden');
-                clearInterval(lockoutInterval);
-            });
+        function applyState(data) {
+            // Score
+            const scoreEl = document.getElementById('score');
+            if (scoreEl && data.score !== undefined) scoreEl.textContent = data.score;
 
-            channel.listen('.BuzzAccepted', e => {
-                clearInterval(lockoutInterval);
-                document.getElementById('lockout-area').classList.add('hidden');
-                setBuzzerState(false);
-                if (e.contestant_id === CONTESTANT_ID) {
-                    setStatus(TRANS.you_buzzed_first, 'text-yellow-400');
-                    document.getElementById('buzz-btn').classList.add('ring-4', 'ring-yellow-400');
-                } else {
-                    setStatus(TRANS.was_first.replace(':name', e.contestant_name), 'text-gray-500');
-                }
-            });
-
-            channel.listen('.ContestantLockedOut', e => {
-                if (e.contestant_id === CONTESTANT_ID) {
-                    startLockoutCountdown(e.locked_until);
-                }
-            });
-
-            channel.listen('.RoundReset', () => {
-                clearInterval(lockoutInterval);
-                document.getElementById('lockout-area').classList.add('hidden');
-                document.getElementById('buzz-btn').classList.remove('ring-4', 'ring-yellow-400');
-                setBuzzerState(true, true);
-                setStatus(TRANS.buzzers_reset, 'text-green-400');
-            });
-
-            channel.listen('.RoundCompleted', e => {
-                setBuzzerState(false);
-                if (e.was_correct && e.winner_id === CONTESTANT_ID) {
-                    setStatus(TRANS.correct_answer, 'text-green-400');
-                } else {
-                    setStatus(TRANS.round_over, 'text-gray-400');
-                }
-                document.getElementById('buzz-btn').classList.remove('ring-4', 'ring-yellow-400');
-            });
-
-            channel.listen('.ScoreUpdated', e => {
-                const me = e.scoreboard.find(c => c.id === CONTESTANT_ID);
-                if (me) document.getElementById('score').textContent = me.score;
-            });
-
-            channel.listen('.CompetitionEnded', e => {
+            // Competition ended
+            if (data.competition_status === 'ended') {
                 setBuzzerState(false);
                 setStatus(TRANS.competition_ended, 'text-gray-400');
-                setTimeout(() => window.location.href = e.results_url, 2000);
-            });
+                setTimeout(() => window.location.href = '/results/' + ROOM_CODE, 1500);
+                return;
+            }
 
-            // Connection state indicator
-            window.Echo.connector.ably.connection.on('connected', () => {
-                document.getElementById('connection-dot').className = 'w-2 h-2 rounded-full bg-green-400';
-                document.getElementById('connection-label').textContent = TRANS.connected;
-            });
-            window.Echo.connector.ably.connection.on('disconnected', () => {
-                document.getElementById('connection-dot').className = 'w-2 h-2 rounded-full bg-red-400';
-                document.getElementById('connection-label').textContent = TRANS.disconnected;
-            });
-            window.Echo.connector.ably.connection.on('connecting', () => {
-                document.getElementById('connection-dot').className =
-                    'w-2 h-2 rounded-full bg-yellow-400 animate-pulse';
-                document.getElementById('connection-label').textContent = TRANS.reconnecting;
-            });
+            const round = data.round;
+            const roundStatus = round?.status ?? 'none';
+            const firstBuzzerId = round?.first_buzzer_id ?? null;
+
+            // Locked out handling
+            if (data.is_locked && data.locked_until) {
+                startLockoutCountdown(data.locked_until);
+            } else if (!data.is_locked && lockoutInterval) {
+                clearInterval(lockoutInterval);
+                lockoutInterval = null;
+                document.getElementById('lockout-area').classList.add('hidden');
+            }
+
+            // Round started (new round)
+            if (round && round.id !== lastRoundId) {
+                lastRoundId = round.id;
+                lastFirstBuzzer = null;
+                document.getElementById('buzz-btn').classList.remove('ring-4', 'ring-yellow-400');
+            }
+
+            // Status transitions
+            if (roundStatus !== lastRoundStatus || firstBuzzerId !== lastFirstBuzzer) {
+                lastRoundStatus = roundStatus;
+                lastFirstBuzzer = firstBuzzerId;
+
+                if (roundStatus === 'active' && !data.is_locked) {
+                    setBuzzerState(true, true);
+                    setStatus(TRANS.buzz_active, 'text-green-400');
+                    document.getElementById('lockout-area').classList.add('hidden');
+                } else if (roundStatus === 'locked') {
+                    setBuzzerState(false);
+                    document.getElementById('buzz-btn').classList.remove('ring-4', 'ring-yellow-400');
+                    if (firstBuzzerId === CONTESTANT_ID) {
+                        setStatus(TRANS.you_buzzed_first, 'text-yellow-400');
+                        document.getElementById('buzz-btn').classList.add('ring-4', 'ring-yellow-400');
+                    } else if (round.first_buzzer_name) {
+                        setStatus(TRANS.was_first.replace(':name', round.first_buzzer_name), 'text-gray-500');
+                    }
+                } else if (roundStatus === 'completed') {
+                    setBuzzerState(false);
+                    setStatus(TRANS.round_over, 'text-gray-400');
+                    document.getElementById('buzz-btn').classList.remove('ring-4', 'ring-yellow-400');
+                } else if (roundStatus === 'none') {
+                    setBuzzerState(false);
+                    setStatus(TRANS.waiting_for_round, 'text-gray-400');
+                }
+            }
         }
+
+        async function pollState() {
+            try {
+                const res = await fetch(BASE_URL + '/state', { headers: { 'Accept': 'application/json' } });
+                if (res.ok) applyState(await res.json());
+            } catch (e) { /* ignore network blip */ }
+        }
+
+        pollInterval = setInterval(pollState, 800);
     </script>
 @endpush

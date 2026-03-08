@@ -3,16 +3,12 @@
 namespace App\Services;
 
 use App\Enums\CompetitionStatus;
-use App\Events\CompetitionEnded;
 use App\Models\Competition;
 use App\Models\Contestant;
 use Illuminate\Support\Str;
 
 class CompetitionService
 {
-    /**
-     * Create a new competition room with pre-defined contestants.
-     */
     public function createCompetition(string $title, array $contestantNames): Competition
     {
         $competition = Competition::create([
@@ -49,18 +45,6 @@ class CompetitionService
             'ended_at'         => now(),
             'current_round_id' => null,
         ]);
-
-        $ranking = $competition->contestants()
-            ->orderByDesc('score')
-            ->get()
-            ->map(fn($c) => [
-                'id'    => $c->id,
-                'name'  => $c->display_name,
-                'score' => $c->score,
-            ])
-            ->toArray();
-
-        CompetitionEnded::dispatch($competition, $ranking);
     }
 
     public function getScoreboard(Competition $competition): array

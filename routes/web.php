@@ -45,6 +45,7 @@ Route::prefix('judge/{roomCode}')->name('judge.')->group(function () {
 Route::prefix('join/{roomCode}')->name('contestant.')->group(function () {
     Route::get('/', [ContestantController::class, 'join'])->name('join');
     Route::post('/claim', [ContestantController::class, 'claim'])->name('claim');
+    Route::get('/state', [ContestantController::class, 'joinState'])->name('join.state');
 });
 
 Route::prefix('play/{roomCode}/{contestantId}')->name('contestant.')->group(function () {
@@ -61,23 +62,4 @@ Route::prefix('play/{roomCode}/{contestantId}')->name('contestant.')->group(func
 
 Route::get('/results/{roomCode}', [ResultsController::class, 'show'])->name('competition.results');
 Route::get('/display/{roomCode}', [DisplayController::class, 'show'])->name('display.show');
-
-/*
-|--------------------------------------------------------------------------
-| Ably Token Auth
-|--------------------------------------------------------------------------
-| Ably JS SDK requests a connection-level token (no channel_name), which
-| is incompatible with Laravel's AblyBroadcaster::auth() that expects a
-| per-channel request. This endpoint generates a signed TokenRequest that
-| the Ably JS SDK exchanges directly with Ably servers.
-*/
-
-// Accept GET and POST — Ably JS SDK always sends POST for token requests.
-// Returns a signed TokenRequest; Ably SDK exchanges it directly with Ably.
-Route::match(['get', 'post'], '/ably-auth', function () {
-    $ably = new \Ably\AblyRest(config('broadcasting.connections.ably.key'));
-    $tokenRequest = $ably->auth->createTokenRequest([
-        'capability' => json_encode(['public:competition.*' => ['subscribe', 'history', 'channel-metadata']]),
-    ]);
-    return response()->json($tokenRequest);
-})->name('ably.auth');
+Route::get('/display/{roomCode}/state', [DisplayController::class, 'state'])->name('display.state');

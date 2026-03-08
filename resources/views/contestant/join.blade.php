@@ -53,19 +53,32 @@
     <script>
         const ROOM_CODE = document.querySelector('meta[name="room-code"]').content;
         const TRANS = @json(['already_claimed' => __('contestant.already_claimed')]);
-        if (window.Echo) {
-            window.Echo.channel('competition.' + ROOM_CODE)
-                .listen('.ContestantClaimed', e => {
-                    document.querySelectorAll('button[name="contestant_id"]').forEach(btn => {
-                        if (btn.value == e.contestant_id) {
-                            btn.disabled = true;
-                            btn.className = btn.className
-                                .replace('bg-indigo-700 hover:bg-indigo-600 active:scale-95 text-white', '') +
-                                ' bg-gray-800 text-gray-600 cursor-not-allowed opacity-60';
-                            btn.querySelector(':last-child').textContent = TRANS.already_claimed;
+
+        async function pollJoinState() {
+            try {
+                const res = await fetch('/join/' + ROOM_CODE + '/state', { headers: { 'Accept': 'application/json' } });
+                if (!res.ok) return;
+                const data = await res.json();
+                if (data.contestants) {
+                    data.contestants.forEach(c => {
+                        if (c.is_claimed) {
+                            const btn = document.querySelector('button[name="contestant_id"][value="' + c.id + '"]');
+                            if (btn && !btn.disabled) {
+                                btn.disabled = true;
+                                btn.className = btn.className
+                                    .replace('bg-indigo-700', 'bg-gray-800')
+                                    .replace('hover:bg-indigo-600', '')
+                                    .replace('active:scale-95', '')
+                                    .replace('text-white', 'text-gray-600') + ' cursor-not-allowed opacity-60';
+                                const arrow = btn.querySelector(':last-child');
+                                if (arrow) arrow.textContent = TRANS.already_claimed;
+                            }
                         }
                     });
-                });
+                }
+            } catch (e) { /* ignore */ }
         }
+
+        setInterval(pollJoinState, 2000);
     </script>
 @endpush

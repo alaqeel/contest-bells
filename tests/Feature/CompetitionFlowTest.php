@@ -4,14 +4,10 @@ namespace Tests\Feature;
 
 use App\Enums\CompetitionStatus;
 use App\Enums\RoundStatus;
-use App\Events\CompetitionEnded;
-use App\Events\RoundStarted;
-use App\Events\ScoreUpdated;
 use App\Models\Competition;
 use App\Services\CompetitionService;
 use App\Services\RoundService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Event;
 use Tests\TestCase;
 
 class CompetitionFlowTest extends TestCase
@@ -74,8 +70,6 @@ class CompetitionFlowTest extends TestCase
         $res = $this->postJson(route('judge.rounds.start', $competition->room_code));
         $res->assertOk()->assertJsonStructure(['round_id', 'round_number', 'status']);
 
-        Event::assertDispatched(RoundStarted::class);
-
         $competition->refresh();
         $this->assertNotNull($competition->current_round_id);
         $this->assertEquals(RoundStatus::Active, $competition->currentRound->status);
@@ -106,7 +100,6 @@ class CompetitionFlowTest extends TestCase
 
         $contestant->refresh();
         $this->assertEquals(1, $contestant->score);
-        Event::assertDispatched(ScoreUpdated::class);
     }
 
     public function test_judge_can_end_competition(): void
@@ -120,7 +113,6 @@ class CompetitionFlowTest extends TestCase
 
         $competition->refresh();
         $this->assertEquals(CompetitionStatus::Ended, $competition->status);
-        Event::assertDispatched(CompetitionEnded::class);
     }
 
     public function test_non_judge_cannot_start_round(): void

@@ -40,7 +40,7 @@
             <div class="mt-8 text-center">
                 <a href="{{ route('home') }}"
                     class="inline-block px-6 py-3 bg-indigo-700 hover:bg-indigo-600 text-white font-bold rounded-xl transition">
-                    New Competition
+                    {{ __('scoreboard.new_competition') }}
                 </a>
             </div>
         </div>

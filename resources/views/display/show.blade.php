@@ -44,27 +44,41 @@
 @push('scripts')
     <script>
         const ROOM_CODE = document.querySelector('meta[name="room-code"]').content;
-        if (window.Echo) {
-            window.Echo.channel('competition.' + ROOM_CODE)
-                .listen('.BuzzAccepted', e => {
-                    document.getElementById('display-buzzer').style.display = '';
-                    document.getElementById('display-buzzer-name').textContent = e.contestant_name;
-                })
-                .listen('.RoundReset', () => {
-                    document.getElementById('display-buzzer').style.display = 'none';
-                })
-                .listen('.RoundStarted', () => {
-                    document.getElementById('display-buzzer').style.display = 'none';
-                })
-                .listen('.ScoreUpdated', e => {
-                    e.scoreboard.forEach(c => {
+        let lastFirstBuzzer = null;
+
+        async function pollDisplayState() {
+            try {
+                const res = await fetch('/display/' + ROOM_CODE + '/state', { headers: { 'Accept': 'application/json' } });
+                if (!res.ok) return;
+                const data = await res.json();
+
+                if (data.status === 'ended') {
+                    window.location.href = '/results/' + ROOM_CODE;
+                    return;
+                }
+
+                const round = data.round;
+                const buzzerName = round?.first_buzzer_name ?? null;
+
+                if (buzzerName !== lastFirstBuzzer) {
+                    lastFirstBuzzer = buzzerName;
+                    if (buzzerName) {
+                        document.getElementById('display-buzzer').style.display = '';
+                        document.getElementById('display-buzzer-name').textContent = buzzerName;
+                    } else {
+                        document.getElementById('display-buzzer').style.display = 'none';
+                    }
+                }
+
+                if (data.scoreboard) {
+                    data.scoreboard.forEach(c => {
                         const el = document.querySelector('[data-score="' + c.id + '"]');
                         if (el) el.textContent = c.score;
                     });
-                })
-                .listen('.CompetitionEnded', e => {
-                    window.location.href = e.results_url;
-                });
+                }
+            } catch (e) { /* ignore */ }
         }
+
+        setInterval(pollDisplayState, 1000);
     </script>
 @endpush
