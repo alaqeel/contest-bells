@@ -248,7 +248,8 @@
                 });
                 if (res.ok) applyState(await res.json());
             } catch (e) {
-                /* ignore network blip */ }
+                /* ignore network blip */
+            }
         }
 
         pollInterval = setInterval(pollState, 800);

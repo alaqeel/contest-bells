@@ -444,7 +444,8 @@
                 });
                 if (res.ok) applyState(await res.json());
             } catch (e) {
-                /* network blip — ignore */ }
+                /* network blip — ignore */
+            }
         }
 
         function startPolling(intervalMs) {
