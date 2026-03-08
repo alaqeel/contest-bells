@@ -85,6 +85,6 @@ class ContestantClaimTest extends TestCase
         $this->get(route('contestant.play', [
             'roomCode'     => $competition->room_code,
             'contestantId' => $alice->id,
-        ]))->assertStatus(200)->assertSee('BUZZ');
+        ]))->assertStatus(200)->assertSee('buzz-btn', false);
     }
 }
