@@ -72,9 +72,9 @@ Route::get('/display/{roomCode}', [DisplayController::class, 'show'])->name('dis
 | the Ably JS SDK exchanges directly with Ably servers.
 */
 
-// GET, no CSRF — Ably JS requests this with authMethod: 'GET'.
+// Accept GET and POST — Ably JS SDK always sends POST for token requests.
 // Returns a signed TokenRequest; Ably SDK exchanges it directly with Ably.
-Route::get('/ably-auth', function () {
+Route::match(['get', 'post'], '/ably-auth', function () {
     $ably = new \Ably\AblyRest(config('broadcasting.connections.ably.key'));
     $tokenRequest = $ably->auth->createTokenRequest([
         'capability' => json_encode(['public:competition.*' => ['subscribe', 'history', 'channel-metadata']]),
