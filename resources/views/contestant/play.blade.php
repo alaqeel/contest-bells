@@ -179,7 +179,8 @@
                     osc.stop(ctx.currentTime + t + len);
                 });
             } catch (e) {
-                /* Web Audio unavailable */ }
+                /* Web Audio unavailable */
+            }
         }
 
         function setBuzzerState(enabled, pulse = false) {
@@ -255,6 +256,7 @@
         let lastRoundId = null;
         let lastRoundStatus = null;
         let lastFirstBuzzer = null;
+        let roundWinnerId = null; // saved when locked; used in completed branch
         let pollInterval = null;
 
         function applyState(data) {
@@ -287,6 +289,7 @@
             if (round && round.id !== lastRoundId) {
                 lastRoundId = round.id;
                 lastFirstBuzzer = null;
+                roundWinnerId = null;
                 document.getElementById('buzz-btn').classList.remove('ring-4', 'ring-yellow-400');
             }
 
@@ -303,7 +306,9 @@
                 } else if (roundStatus === 'locked') {
                     setBuzzerState(false);
                     document.getElementById('buzz-btn').classList.remove('ring-4', 'ring-yellow-400');
-                    if (firstBuzzerId === CONTESTANT_ID) {
+                    // Save winner ID here so the completed branch can use it reliably
+                    if (firstBuzzerId) roundWinnerId = Number(firstBuzzerId);
+                    if (roundWinnerId === CONTESTANT_ID) {
                         setStatus(TRANS.you_buzzed_first, 'text-yellow-400');
                         document.getElementById('buzz-btn').classList.add('ring-4', 'ring-yellow-400');
                     } else if (round.first_buzzer_name) {
@@ -312,7 +317,9 @@
                 } else if (roundStatus === 'completed') {
                     setBuzzerState(false);
                     document.getElementById('buzz-btn').classList.remove('ring-4', 'ring-yellow-400');
-                    if (firstBuzzerId === CONTESTANT_ID) {
+                    // firstBuzzerId may still be set on the round; also use roundWinnerId saved during locked
+                    const winner = roundWinnerId ?? (firstBuzzerId ? Number(firstBuzzerId) : null);
+                    if (winner === CONTESTANT_ID) {
                         setStatus(TRANS.correct_answer, 'text-green-400');
                         launchConfetti();
                     } else {
@@ -471,7 +478,8 @@
                         osc.stop(ctx.currentTime + t + len);
                     });
                 } catch (e) {
-                    /* Web Audio unavailable */ }
+                    /* Web Audio unavailable */
+                }
             }
 
             window.launchConfetti = function() {
