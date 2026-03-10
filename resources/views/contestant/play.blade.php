@@ -140,6 +140,32 @@
             }
         }
 
+        function playFail() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                // Descending "wah-wah" trombone-style tones
+                const notes = [
+                    { freq: 380, t: 0.00, len: 0.45 },
+                    { freq: 300, t: 0.30, len: 0.45 },
+                    { freq: 220, t: 0.60, len: 0.70 },
+                ];
+                notes.forEach(({ freq, t, len }) => {
+                    const osc  = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(freq * 1.08, ctx.currentTime + t);
+                    osc.frequency.linearRampToValueAtTime(freq, ctx.currentTime + t + len * 0.6);
+                    gain.gain.setValueAtTime(0, ctx.currentTime + t);
+                    gain.gain.linearRampToValueAtTime(0.28, ctx.currentTime + t + 0.04);
+                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + t + len);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start(ctx.currentTime + t);
+                    osc.stop(ctx.currentTime + t + len);
+                });
+            } catch (e) { /* Web Audio unavailable */ }
+        }
+
         function setBuzzerState(enabled, pulse = false) {
             buzzerEnabled = enabled;
             const btn = document.getElementById('buzz-btn');
@@ -275,6 +301,7 @@
                         launchConfetti();
                     } else {
                         setStatus(TRANS.round_over, 'text-gray-400');
+                        playFail();
                     }
                 } else if (roundStatus === 'none') {
                     setBuzzerState(false);
@@ -356,12 +383,69 @@
                 }
             }
 
+            function playCheer() {
+                try {
+                    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                    const duration = 2.5;
+
+                    // ── Crowd noise: white-noise buffer filtered to "roar" shape ──
+                    const bufLen  = ctx.sampleRate * duration;
+                    const buffer  = ctx.createBuffer(1, bufLen, ctx.sampleRate);
+                    const data    = buffer.getChannelData(0);
+                    for (let i = 0; i < bufLen; i++) data[i] = Math.random() * 2 - 1;
+
+                    const noise  = ctx.createBufferSource();
+                    noise.buffer = buffer;
+
+                    // Band-pass 400–3000 Hz — gives it a muffled crowd feel
+                    const bp = ctx.createBiquadFilter();
+                    bp.type            = 'bandpass';
+                    bp.frequency.value = 1200;
+                    bp.Q.value         = 0.5;
+
+                    const noiseGain = ctx.createGain();
+                    noiseGain.gain.setValueAtTime(0, ctx.currentTime);
+                    noiseGain.gain.linearRampToValueAtTime(0.35, ctx.currentTime + 0.15);  // fast swell
+                    noiseGain.gain.linearRampToValueAtTime(0.25, ctx.currentTime + 0.8);
+                    noiseGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+
+                    noise.connect(bp);
+                    bp.connect(noiseGain);
+                    noiseGain.connect(ctx.destination);
+                    noise.start(ctx.currentTime);
+                    noise.stop(ctx.currentTime + duration);
+
+                    // ── Fanfare: three ascending major-chord tones ──
+                    const fanfare = [
+                        { freq: 523.25, t: 0.00, len: 1.8 },   // C5
+                        { freq: 659.25, t: 0.12, len: 1.6 },   // E5
+                        { freq: 783.99, t: 0.24, len: 1.4 },   // G5
+                        { freq: 1046.5, t: 0.36, len: 1.2 },   // C6 (octave)
+                    ];
+                    fanfare.forEach(({ freq, t, len }) => {
+                        const osc  = ctx.createOscillator();
+                        const gain = ctx.createGain();
+                        osc.type = 'triangle';
+                        osc.frequency.value = freq;
+                        gain.gain.setValueAtTime(0, ctx.currentTime + t);
+                        gain.gain.linearRampToValueAtTime(0.25, ctx.currentTime + t + 0.05);
+                        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + t + len);
+                        osc.connect(gain);
+                        gain.connect(ctx.destination);
+                        osc.start(ctx.currentTime + t);
+                        osc.stop(ctx.currentTime + t + len);
+                    });
+                } catch (e) { /* Web Audio unavailable */ }
+            }
+
             window.launchConfetti = function() {
                 const canvas = document.getElementById('confetti-canvas');
                 canvas.width = window.innerWidth;
                 canvas.height = window.innerHeight;
                 canvas.style.display = 'block';
                 const ctx = canvas.getContext('2d');
+
+                playCheer();
 
                 // Spawn 180 pieces in three bursts
                 for (let i = 0; i < 180; i++) {
