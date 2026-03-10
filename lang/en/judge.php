@@ -29,4 +29,6 @@ return [
     'log_contestant_joined'  => '👤 :name joined',
     'log_buzzed_first'       => '🔔 :name buzzed first!',
     'log_round_completed'    => '✓ Round completed',
+    'all_ready_banner'       => 'Ready to Start!',
+    'log_all_ready'          => '🎉 All contestants are ready!',
 ];

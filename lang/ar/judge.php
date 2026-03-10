@@ -29,4 +29,6 @@ return [
     'log_contestant_joined'  => '👤 انضم :name',
     'log_buzzed_first'       => '🔔 :name ضغط أولاً!',
     'log_round_completed'    => '✓ انتهت الجولة',
+    'all_ready_banner'       => 'جاهزون للبدء!',
+    'log_all_ready'          => '🎉 جميع المتسابقين جاهزون!',
 ];

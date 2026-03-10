@@ -74,6 +74,11 @@
 
     {{-- Sound placeholder (can swap src for a real sound file) --}}
     <audio id="buzz-sound" src="/sounds/buzz.mp3" preload="auto"></audio>
+
+    {{-- Confetti canvas (hidden by default; shown only during confetti animation) --}}
+    <canvas id="confetti-canvas"
+        style="display:none;position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:50"
+        aria-hidden="true"></canvas>
 @endsection
 
 @push('scripts')
@@ -101,6 +106,39 @@
 
         let buzzerEnabled = {{ $competition->currentRound?->status->value === 'active' ? 'true' : 'false' }};
         let lockoutInterval = null;
+
+        // ── Bell ring (Web Audio API) ────────────────────────────────────────
+        function playBell() {
+            try {
+                const ctx = new(window.AudioContext || window.webkitAudioContext)();
+                // First partial: fundamental
+                const osc1 = ctx.createOscillator();
+                const gain1 = ctx.createGain();
+                osc1.connect(gain1);
+                gain1.connect(ctx.destination);
+                osc1.type = 'sine';
+                osc1.frequency.setValueAtTime(880, ctx.currentTime);
+                osc1.frequency.exponentialRampToValueAtTime(660, ctx.currentTime + 0.4);
+                gain1.gain.setValueAtTime(0.7, ctx.currentTime);
+                gain1.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.8);
+                osc1.start(ctx.currentTime);
+                osc1.stop(ctx.currentTime + 1.8);
+                // Second partial: overtone adds brightness
+                const osc2 = ctx.createOscillator();
+                const gain2 = ctx.createGain();
+                osc2.connect(gain2);
+                gain2.connect(ctx.destination);
+                osc2.type = 'sine';
+                osc2.frequency.setValueAtTime(1760, ctx.currentTime);
+                osc2.frequency.exponentialRampToValueAtTime(1320, ctx.currentTime + 0.3);
+                gain2.gain.setValueAtTime(0.3, ctx.currentTime);
+                gain2.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.2);
+                osc2.start(ctx.currentTime);
+                osc2.stop(ctx.currentTime + 1.2);
+            } catch (e) {
+                /* Web Audio not available */
+            }
+        }
 
         function setBuzzerState(enabled, pulse = false) {
             buzzerEnabled = enabled;
@@ -216,6 +254,7 @@
                 lastFirstBuzzer = firstBuzzerId;
 
                 if (roundStatus === 'active' && !data.is_locked) {
+                    playBell();
                     setBuzzerState(true, true);
                     setStatus(TRANS.buzz_active, 'text-green-400');
                     document.getElementById('lockout-area').classList.add('hidden');
@@ -230,8 +269,13 @@
                     }
                 } else if (roundStatus === 'completed') {
                     setBuzzerState(false);
-                    setStatus(TRANS.round_over, 'text-gray-400');
                     document.getElementById('buzz-btn').classList.remove('ring-4', 'ring-yellow-400');
+                    if (firstBuzzerId === CONTESTANT_ID) {
+                        setStatus(TRANS.correct_answer, 'text-green-400');
+                        launchConfetti();
+                    } else {
+                        setStatus(TRANS.round_over, 'text-gray-400');
+                    }
                 } else if (roundStatus === 'none') {
                     setBuzzerState(false);
                     setStatus(TRANS.waiting_for_round, 'text-gray-400');
@@ -253,5 +297,79 @@
         }
 
         pollInterval = setInterval(pollState, 800);
+
+        // ── Confetti ─────────────────────────────────────────────────────────────
+        (function() {
+            const COLORS = ['#FF595E', '#FFCA3A', '#6A4C93', '#1982C4', '#8AC926', '#FF924C', '#C77DFF', '#06D6A0'];
+
+            function random(min, max) {
+                return Math.random() * (max - min) + min;
+            }
+
+            function Particle(canvas) {
+                this.x = random(0, canvas.width);
+                this.y = random(-canvas.height * 0.5, 0);
+                this.w = random(8, 18);
+                this.h = random(4, 10);
+                this.color = COLORS[Math.floor(Math.random() * COLORS.length)];
+                this.angle = random(0, Math.PI * 2);
+                this.spin = random(-0.15, 0.15);
+                this.vx = random(-2, 2);
+                this.vy = random(2, 6);
+                this.alpha = 1;
+            }
+
+            Particle.prototype.update = function() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.angle += this.spin;
+                this.vy += 0.07; // gravity
+                this.alpha -= 0.008; // slow fade
+            };
+
+            Particle.prototype.draw = function(ctx) {
+                ctx.save();
+                ctx.globalAlpha = Math.max(this.alpha, 0);
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.angle);
+                ctx.fillStyle = this.color;
+                ctx.fillRect(-this.w / 2, -this.h / 2, this.w, this.h);
+                ctx.restore();
+            };
+
+            let particles = [];
+            let rafId = null;
+
+            function loop(canvas, ctx) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                particles = particles.filter(p => p.alpha > 0 && p.y < canvas.height + 40);
+                particles.forEach(p => {
+                    p.update();
+                    p.draw(ctx);
+                });
+                if (particles.length > 0) {
+                    rafId = requestAnimationFrame(() => loop(canvas, ctx));
+                } else {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    canvas.style.display = 'none';
+                    rafId = null;
+                }
+            }
+
+            window.launchConfetti = function() {
+                const canvas = document.getElementById('confetti-canvas');
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                canvas.style.display = 'block';
+                const ctx = canvas.getContext('2d');
+
+                // Spawn 180 pieces in three bursts
+                for (let i = 0; i < 180; i++) {
+                    particles.push(new Particle(canvas));
+                }
+
+                if (!rafId) loop(canvas, ctx);
+            };
+        }());
     </script>
 @endpush

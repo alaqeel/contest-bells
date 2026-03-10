@@ -194,6 +194,18 @@
             </div>
         </main>
     </div>
+
+    {{-- All-ready overlay --}}
+    <div id="ready-overlay" class="hidden fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
+        <div id="ready-banner"
+            class="bg-green-700/95 backdrop-blur-sm text-white rounded-3xl px-16 py-12 text-center shadow-2xl shadow-green-900/50
+                   transform scale-0 transition-all duration-500 ease-out">
+            <div class="text-7xl font-black tracking-tight text-green-100 animate-bounce mb-2">
+                {{ __('judge.all_ready_banner') }}
+            </div>
+            <div class="text-4xl">🎉</div>
+        </div>
+    </div>
 @endsection
 
 @push('scripts')
@@ -215,12 +227,33 @@
             'log_contestant_joined' => __('judge.log_contestant_joined'),
             'log_buzzed_first' => __('judge.log_buzzed_first'),
             'log_round_completed' => __('judge.log_round_completed'),
+            'all_ready_banner' => __('judge.all_ready_banner'),
+            'log_all_ready' => __('judge.log_all_ready'),
         ]) !!};
         let currentRound = @json(
             $competition->currentRound
                 ? ['id' => $competition->currentRound->id, 'status' => $competition->currentRound->status->value]
                 : null);
         let timerInterval = null;
+        let allReadyShown = false;
+
+        // ── All-ready banner ─────────────────────────────────────────────────────────
+        function showReadyBanner() {
+            allReadyShown = true;
+            const overlay = document.getElementById('ready-overlay');
+            const banner = document.getElementById('ready-banner');
+            overlay.classList.remove('hidden');
+            // Trigger scale animation on next frame
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => banner.classList.replace('scale-0', 'scale-100'));
+            });
+            log(TRANS.log_all_ready);
+            // Auto-dismiss after 3 s
+            setTimeout(() => {
+                banner.classList.replace('scale-100', 'scale-0');
+                setTimeout(() => overlay.classList.add('hidden'), 500);
+            }, 3000);
+        }
 
         // ── Helpers ─────────────────────────────────────────────────────────────────
         function log(msg) {
@@ -378,6 +411,14 @@
                         log(TRANS.log_contestant_joined.replace(':name', c.name));
                     }
                 });
+
+                // Show "Ready" banner when ALL contestants have claimed and no active round yet
+                if (!allReadyShown && data.contestants.length > 0 && data.contestants.every(c => c.claimed)) {
+                    const roundStatus = data.round?.status ?? 'none';
+                    if (roundStatus === 'none' || roundStatus === 'pending') {
+                        showReadyBanner();
+                    }
+                }
             }
 
             // Scoreboard
