@@ -1,6 +1,6 @@
 <?php
 return [
-    'app_name'      => 'Contest Bells',
+    'app_name'      => 'أجراس',
     'tagline'       => 'نظام إجابات المسابقة في الوقت الفعلي',
     'switch_to_en'  => 'English',
     'switch_to_ar'  => 'العربية',
